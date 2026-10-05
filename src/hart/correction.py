@@ -11,12 +11,13 @@ class CorrectionNet:
     """
 
     def __init__(self, n_features, n_assets, kind="mlp", hidden=16, emb=4, dropout=0.1,
-                 alpha=0.025, lam_c=1.0, wd=1e-4, bound=0.25, seed=0):
+                 alpha=0.025, lam_c=1.0, wd=1e-4, bound=0.25, lam_mean=0.0, seed=0):
         if kind not in ("mlp", "linear"):
             raise ValueError(f"bad kind {kind!r}")
         self.kind, self.F, self.alpha = kind, n_features, alpha
         self.dropout = dropout if kind == "mlp" else 0.0
         self.lam_c, self.wd, self.bound = lam_c, wd, bound
+        self.lam_mean = lam_mean  # penalty on the batch-average correction (no level shift)
         rng = np.random.default_rng(seed)
         if kind == "mlp":
             d = n_features + emb
@@ -67,6 +68,8 @@ class CorrectionNet:
         loss, dv, de = self._fz(c, b["y"])
         dcv = (dv + de) * c["var"] + 2.0 * self.lam_c * c["cv"] / n
         dcs = de * c["D"] * np.exp(c["cs"]) + 2.0 * self.lam_c * c["cs"] / n
+        dcv = dcv + 2.0 * self.lam_mean * c["cv"].mean() / n
+        dcs = dcs + 2.0 * self.lam_mean * c["cs"].mean() / n
         dpre = np.column_stack([dcv, dcs]) * self.bound * (1.0 - c["th"] ** 2)
         g = {k: np.zeros_like(v) for k, v in p.items()}
         g["Wo"], g["bo"] = c["inp"].T @ dpre, dpre.sum(axis=0)
@@ -75,6 +78,7 @@ class CorrectionNet:
             g["W1"], g["b1"] = c["z"].T @ da1, da1.sum(axis=0)
             np.add.at(g["emb"], b["a"], (da1 @ p["W1"].T)[:, self.F:])
         reg = self.lam_c * np.mean(c["cv"] ** 2 + c["cs"] ** 2)
+        reg += self.lam_mean * (c["cv"].mean() ** 2 + c["cs"].mean() ** 2)
         for k in _DECAYED:
             if k in p:
                 reg += 0.5 * self.wd * np.sum(p[k] ** 2)

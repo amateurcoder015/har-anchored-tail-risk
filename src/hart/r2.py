@@ -35,7 +35,7 @@ def _batch(rows, mean, std, assets):
 
 
 def run_r2(long, kind, alpha, folds, lam_c=1.0, seeds=(0, 1, 2, 3, 4), epochs=300, patience=20,
-           hidden=16):
+           hidden=16, lam_mean=0.0):
     assets = {a: i for i, a in enumerate(sorted(long["asset"].unique()))}
     preds = []
     for k, fold in enumerate(folds, start=1):
@@ -52,7 +52,7 @@ def run_r2(long, kind, alpha, folds, lam_c=1.0, seeds=(0, 1, 2, 3, 4), epochs=30
         outs = []
         for s in seeds:
             net = CorrectionNet(len(R2_FEATURES), len(assets), kind=kind, hidden=hidden,
-                                alpha=alpha, lam_c=lam_c, seed=s)
+                                alpha=alpha, lam_c=lam_c, lam_mean=lam_mean, seed=s)
             train_gate(net, tr, va, epochs=epochs, patience=patience, seed=s)
             outs.append(net.forward(te))
         preds.append(pd.DataFrame({

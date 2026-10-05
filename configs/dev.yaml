@@ -76,3 +76,4 @@ gate_variants:
 r2:
   anchor: r0
   lam_c: 1.0
+  lam_mean: 100.0

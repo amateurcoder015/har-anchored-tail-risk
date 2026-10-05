@@ -22,7 +22,7 @@ def _batch(n=80, F=4, n_assets=2, seed=0):
 @pytest.mark.parametrize("dropout", [0.0, 0.3])
 def test_gradients_match_finite_differences(kind, dropout):
     b = _batch()
-    net = CorrectionNet(4, 2, kind=kind, hidden=5, emb=2, dropout=dropout, lam_c=0.7, wd=1e-3, seed=1)
+    net = CorrectionNet(4, 2, kind=kind, hidden=5, emb=2, dropout=dropout, lam_c=0.7, wd=1e-3, lam_mean=3.0, seed=1)
     rng = np.random.default_rng(2)
     for k in net.p:
         net.p[k] = net.p[k] + rng.normal(0, 0.3, net.p[k].shape)
@@ -89,3 +89,19 @@ def test_learns_state_dependent_scale():
     assert info["best_val"] < base
     cv = net.forward(va)["cv"]
     assert cv[va["X"][:, 0] == 1].mean() > cv[va["X"][:, 0] == 0].mean() + 0.1
+
+
+def test_mean_penalty_removes_level_shift():
+    rng = np.random.default_rng(0)
+    n = 4000
+    x = rng.normal(size=n)
+    y = rng.normal(0, 0.008, n)  # anchor (sd 0.01) is too wide everywhere: pure level bias
+    q = stats.norm.ppf(A)
+    b = {"X": x[:, None], "a": np.zeros(n, int), "VA": np.full(n, 0.01 * q),
+         "EA": np.full(n, -0.01 * stats.norm.pdf(q) / A), "y": y}
+    means = []
+    for lam_mean in (0.0, 100.0):
+        net = CorrectionNet(1, 1, emb=0, dropout=0.0, lam_c=0.0, lam_mean=lam_mean, seed=0)
+        train_gate(net, b, b, lr=1e-2, epochs=60, patience=60, seed=0)
+        means.append(abs(net.forward(b)["cv"].mean()))
+    assert means[0] > 0.1 and means[1] < 0.3 * means[0]
