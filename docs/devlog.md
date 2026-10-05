@@ -40,3 +40,17 @@ R2-MLP beats R0 on 6 of 20 assets, R2-linear on 5. Mean correction on test rows:
 ## Revision 1 (planned before running)
 
 Change: add a penalty λ_m·(mean(c_v)² + mean(c_s)²) over each batch, λ_m = 100, so the average correction is pushed to zero and only state-dependent deviations remain. Everything else unchanged (anchor R0, λ_c = 1).
+
+## Run 2 — Revision 1 applied (λ_m = 100) (2026-10-06)
+
+Pooled mean FZ0 (`results/dev/tables/compare.csv`; Run 1 table kept in `compare_run1.csv`):
+
+| Method | α = 1% | α = 2.5% | α = 5% | DM vs R0 (2.5%) | p |
+|---|---|---|---|---|---|
+| R0 (HAR) | -2.9765 | -3.2589 | -3.4787 | | |
+| R2-MLP | -2.9716 | -3.2572 | -3.4799 | 0.23 | 0.820 |
+| R2-linear | -2.9662 | -3.2542 | -3.4795 | 1.02 | 0.310 |
+
+R2-MLP now beats R0 on 10 of 20 assets at α = 2.5% (6 in Run 1) and has slightly lower pooled loss than R0 at α = 5%; at 1% and 2.5% R0 is still lower. Mean test-period correction for R2-MLP: c_v = -0.024 (std 0.078), c_s = -0.001.
+
+**Status.** No method beats R0 on development data. Revisions used: 1 of 3. Paused here for a decision before spending the fresh universe.
