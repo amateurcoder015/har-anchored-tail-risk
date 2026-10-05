@@ -1,6 +1,6 @@
 export VOLGATE_CONFIG ?= configs/dev.yaml
 
-.PHONY: prepare base combos gate table evaluate r1 devreport test
+.PHONY: prepare base combos gate table evaluate r1 devreport r2 compare test
 
 prepare:
 	uv run python scripts/02_prepare.py
@@ -25,6 +25,12 @@ r1:
 
 devreport:
 	uv run python scripts/09_dev_report.py
+
+r2:
+	uv run python scripts/10_r2.py
+
+compare:
+	uv run python scripts/11_dev_compare.py
 
 test:
 	uv run pytest -q

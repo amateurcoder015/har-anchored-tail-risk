@@ -15,9 +15,12 @@ def harx_state(df: pd.DataFrame) -> pd.DataFrame:
     s = pd.DataFrame(index=df.index)
     for name, fn in ESTIMATORS.items():
         v = fn(df).clip(lower=RANGE_FLOOR).shift(1)
-        s[f"{name}_d"] = np.log(v)
+        m = v.rolling(22).mean()
+        # A zero-range day (e.g. Rogers-Satchell on a trend day) would give log(1e-10);
+        # bound the daily term below at a tenth of its own 22-day mean.
+        s[f"{name}_d"] = np.log(np.maximum(v, 0.1 * m))
         s[f"{name}_w"] = np.log(v.rolling(5).mean())
-        s[f"{name}_m"] = np.log(v.rolling(22).mean())
+        s[f"{name}_m"] = np.log(m)
     s["vix2"] = np.log((df["vix"].shift(1) / 100.0) ** 2 / 252.0)
     return s
 

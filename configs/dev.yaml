@@ -73,3 +73,6 @@ special_sessions:
 main_variant: gate_v2
 gate_variants:
 - gate_v2
+r2:
+  anchor: r0
+  lam_c: 1.0

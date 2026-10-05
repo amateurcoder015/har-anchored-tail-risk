@@ -93,3 +93,15 @@ def test_walk_forward_fallback_and_first_failure(panel, monkeypatch):
     calls["n"] = 1  # next call is the 2nd -> fails on the first block
     with pytest.raises(RuntimeError, match="first fit"):
         walk_forward_harx(panel, panel.index[400].strftime("%Y-%m-%d"), 50, [A])
+
+
+def test_zero_range_day_does_not_explode_state(panel):
+    p = panel.copy()
+    d = p.index[300]
+    # trend day: open = low and close = high gives Rogers-Satchell = 0
+    p.loc[d, "low"] = p.loc[d, "open"]
+    p.loc[d, "high"] = p.loc[d, "close"] = p.loc[d, "open"] * 1.01
+    s = harx_state(p)
+    nxt = s.loc[p.index[301]]
+    for e in ("gk", "pk", "rs"):
+        assert nxt[f"{e}_d"] >= nxt[f"{e}_m"] - np.log(10) - 1e-9
