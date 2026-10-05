@@ -44,7 +44,7 @@ So VaR follows a log-linear HAR-X equation and ES is a constant multiple of VaR 
 Given an anchor pair (VaR^A_t, ES^A_t):
 - VaR_t = VaR^A_t · exp(c_v,t)
 - ES_t = VaR_t + (ES^A_t − VaR^A_t) · exp(c_s,t)
-- c_t = 0.25 · tanh(f(x_t)), so each correction changes VaR or the ES spacing by at most about ±28%.
+- c_t = 0.25 · tanh(f(x_t)), so each correction multiplies VaR or the ES spacing by a factor between exp(−0.25) ≈ 0.78 and exp(0.25) ≈ 1.28.
 
 The training loss is mean FZ0 + λ_c · mean(c_v² + c_s²), with λ_c fixed during development and recorded in the development log. Two versions of f:
 - R2-MLP: one hidden layer of 16 units, ReLU, dropout 0.1, asset embedding of size 4.
