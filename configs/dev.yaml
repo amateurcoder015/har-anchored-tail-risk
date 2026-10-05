@@ -1,0 +1,75 @@
+# Development universe: the 20 assets used in the predecessor study.
+start: '2015-01-01'
+end: '2026-09-30'
+oos_start: '2020-01-01'
+refit_every: 21
+alphas:
+- 0.01
+- 0.025
+- 0.05
+outlier_threshold: 0.1
+assets:
+  nifty50: ^NSEI
+  banknifty: ^NSEBANK
+  adanient: ADANIENT.NS
+  tatasteel: TATASTEEL.NS
+  dlf: DLF.NS
+  hindunilvr: HINDUNILVR.NS
+  nestleind: NESTLEIND.NS
+  sunpharma: SUNPHARMA.NS
+  reliance: RELIANCE.NS
+  infy: INFY.NS
+  icicibank: ICICIBANK.NS
+  itc: ITC.NS
+  lt: LT.NS
+  maruti: MARUTI.NS
+  bhartiartl: BHARTIARTL.NS
+  hindalco: HINDALCO.NS
+  drreddy: DRREDDY.NS
+  ongc: ONGC.NS
+  titan: TITAN.NS
+  bajfinance: BAJFINANCE.NS
+vix: ^INDIAVIX
+contracts:
+  nifty50: NIFTY
+  banknifty: BANKNIFTY
+  adanient: STOCK
+  tatasteel: STOCK
+  dlf: STOCK
+  hindunilvr: STOCK
+  nestleind: STOCK
+  sunpharma: STOCK
+  reliance: STOCK
+  infy: STOCK
+  icicibank: STOCK
+  itc: STOCK
+  lt: STOCK
+  maruti: STOCK
+  bhartiartl: STOCK
+  hindalco: STOCK
+  drreddy: STOCK
+  ongc: STOCK
+  titan: STOCK
+  bajfinance: STOCK
+paths:
+  raw: data/dev/raw
+  audit: data/dev/audit
+  processed: data/dev/processed
+  tables: results/dev/tables
+  figures: results/dev/figures
+  expiry_rules: configs/expiry_rules.yaml
+special_sessions:
+- '2015-11-11'
+- '2016-10-30'
+- '2017-10-19'
+- '2018-11-07'
+- '2019-10-27'
+- '2020-11-14'
+- '2021-11-04'
+- '2022-10-24'
+- '2023-11-12'
+- '2024-11-01'
+- '2025-10-21'
+main_variant: gate_v2
+gate_variants:
+- gate_v2

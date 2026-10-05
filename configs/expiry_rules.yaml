@@ -1,0 +1,19 @@
+# NSE expiry calendar rules. A non-trading expiry moves to the previous trading day.
+# Sources checked 2026-10-05. Known simplification: Sep 2023 - Feb 2024 BANKNIFTY weekly
+# contracts did not trade in the monthly-expiry week, but the rules below add that week's
+# Wednesday as an expiry too (6 extra days).
+NIFTY:
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2025-08-31", source: "https://nsearchives.nseindia.com/content/circulars/FAOP65336.pdf"}
+  - {kind: weekly,  weekday: THU, start: "2019-02-11", end: "2025-08-31", source: "https://www.business-standard.com/amp/article/pti-stories/nse-launches-trading-in-weekly-options-on-nifty-50-index-119021101158_1.html"}
+  - {kind: weekly,  weekday: TUE, start: "2025-09-01", end: null,         source: "https://www.business-standard.com/markets/news/nse-bids-adieu-to-thursday-expiry-as-dates-swap-come-into-effect-explained-125082800635_1.html"}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: "https://www.business-standard.com/markets/news/nse-bids-adieu-to-thursday-expiry-as-dates-swap-come-into-effect-explained-125082800635_1.html"}
+BANKNIFTY:
+  - {kind: weekly,  weekday: THU, start: "2016-05-27", end: "2023-09-03", source: "https://www.business-standard.com/amp/article/pti-stories/nse-to-launch-weekly-options-contracts-on-bank-nifty-index-116050501487_1.html"}
+  - {kind: weekly,  weekday: WED, start: "2023-09-04", end: "2024-11-19", source: "https://zerodha.com/marketintel/bulletin/358889/revision-in-expiry-day-for-banknifty-weekly-options-contracts"}
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2024-02-29", source: "https://www.businesstoday.in/markets/top-story/story/nifty-bank-fo-expiry-nse-says-monthly-quarterly-contracts-to-expire-on-last-wednesday-change-effective-from-march-1-2024-411219-2023-12-29"}
+  - {kind: monthly, weekday: WED, start: "2024-03-01", end: "2024-12-31", source: "https://www.businesstoday.in/markets/top-story/story/nifty-bank-fo-expiry-nse-says-monthly-quarterly-contracts-to-expire-on-last-wednesday-change-effective-from-march-1-2024-411219-2023-12-29"}
+  - {kind: monthly, weekday: THU, start: "2025-01-01", end: "2025-08-31", source: "https://nsearchives.nseindia.com/content/circulars/FAOP65336.pdf"}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: "https://www.business-standard.com/markets/news/nse-bids-adieu-to-thursday-expiry-as-dates-swap-come-into-effect-explained-125082800635_1.html"}
+STOCK:
+  - {kind: monthly, weekday: THU, start: "2015-01-01", end: "2025-08-31", source: "https://www.business-standard.com/markets/news/nse-bids-adieu-to-thursday-expiry-as-dates-swap-come-into-effect-explained-125082800635_1.html"}
+  - {kind: monthly, weekday: TUE, start: "2025-09-01", end: null,         source: "https://www.business-standard.com/markets/news/nse-bids-adieu-to-thursday-expiry-as-dates-swap-come-into-effect-explained-125082800635_1.html"}
