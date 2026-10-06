@@ -11,8 +11,11 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def download_raw(tickers: dict[str, str], start: str, end: str, out_dir: Path) -> pd.DataFrame:
+def download_raw(tickers: dict[str, str], start: str, end: str, out_dir: Path,
+                 force: bool = False) -> pd.DataFrame:
     out_dir = Path(out_dir)
+    if (out_dir / "MANIFEST.csv").exists() and not force:
+        raise FileExistsError(f"{out_dir} holds frozen raw data (MANIFEST.csv); pass force=True to replace")
     out_dir.mkdir(parents=True, exist_ok=True)
     end_exclusive = (pd.Timestamp(end) + pd.Timedelta(days=1)).strftime("%Y-%m-%d")
     rows = []

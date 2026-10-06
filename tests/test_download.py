@@ -34,3 +34,11 @@ def test_empty_download_raises(tmp_path, monkeypatch):
     monkeypatch.setattr(dl.yf, "download", lambda *a, **k: pd.DataFrame())
     with pytest.raises(RuntimeError, match="no data"):
         dl.download_raw({"x": "X.NS"}, "2024-01-01", "2024-01-05", tmp_path)
+
+
+def test_download_refuses_to_overwrite_frozen_data(tmp_path, monkeypatch):
+    monkeypatch.setattr(dl.yf, "download", _fake_download)
+    dl.download_raw({"x": "X.NS"}, "2024-01-01", "2024-01-05", tmp_path)
+    with pytest.raises(FileExistsError, match="frozen"):
+        dl.download_raw({"x": "X.NS"}, "2024-01-01", "2024-01-05", tmp_path)
+    dl.download_raw({"x": "X.NS"}, "2024-01-01", "2024-01-05", tmp_path, force=True)

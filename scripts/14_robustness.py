@@ -4,7 +4,7 @@ import pandas as pd
 
 from hart.compare import loss_frames
 from hart.hypotheses import HYPOTHESES, one_sided_p
-from hart.robustness import acerbi_szekely_z2, power_projection, sign_counts
+from hart.robustness import acerbi_szekely_z2, power_projection, sign_counts, z2_critical
 from volgate.config import REPO_ROOT, load_config
 from volgate.evaluate.losses import pooled_average
 from volgate.evaluate.stats import dm_test
@@ -25,7 +25,8 @@ def dm_row(L, name, lo, hi, **extra):
             "diff": L[lo].mean() - L[hi].mean(), "dm_stat": s, "p_one_sided": one_sided_p(s, p)}
 
 
-per_alpha = {a: loss_frames(P["processed"], cfg["assets"], a) for a in cfg["alphas"]}
+per_alpha = {a: loss_frames(P["processed"], cfg["assets"], a, gate_dirs=("gate", "gate_extra"))
+             for a in cfg["alphas"]}
 
 # 1. By tail level (pairs whose methods exist at that level).
 rows = [dm_row(per["ALL"], n, lo, hi, alpha=a) for a, per in per_alpha.items()
@@ -72,17 +73,19 @@ mech_summary = {"corr_abs_log_g_vs_gap": float(np.corrcoef(mech.mean_log_g.abs()
                 "mean_log_g": float(mech.mean_log_g.mean()), "cells": len(mech)}
 pd.Series(mech_summary).to_csv(T / "mechanism_summary.csv", header=["value"])
 
-# 5. Acerbi-Szekely Z2 per method and asset at the main level (reject if Z2 < -0.70, AS 2014 5% threshold).
-rows = []
+# 5. Acerbi-Szekely Z2 per method and asset at the main level; 5% critical value simulated for
+#    each asset's sample length under correct normal VaR/ES (AS 2014's -0.70 is for T = 250).
+rows, crit = [], {}
 for asset in cfg["assets"]:
     y, fc = forecasts(P["processed"], asset, MAIN)
     d = assets[asset].index
+    crit.setdefault(len(d), z2_critical(len(d), MAIN))
     for name, (v, e) in fc.items():
-        rows.append({"asset": asset, "method": name,
+        rows.append({"asset": asset, "method": name, "T": len(d), "crit_5pct": crit[len(d)],
                      "z2": acerbi_szekely_z2(y.loc[d], v.loc[d], e.loc[d], MAIN)})
 z2 = pd.DataFrame(rows)
 z2.to_csv(T / "as_z2.csv", index=False)
-z2_summary = z2.assign(reject=z2.z2 < -0.70).groupby("method").agg(mean_z2=("z2", "mean"), rejections=("reject", "sum"))
+z2_summary = z2.assign(reject=z2.z2 < z2.crit_5pct).groupby("method").agg(mean_z2=("z2", "mean"), rejections=("reject", "sum"))
 z2_summary.to_csv(T / "as_z2_summary.csv")
 
 # 6. Power projection for pooled DM (dates x assets differential panels).
@@ -92,7 +95,13 @@ for n, lo, hi in PAIRS:
     rows.append({"pair": n, "lower": lo, "higher": hi, **power_projection(D)})
 pd.DataFrame(rows).to_csv(T / "power.csv", index=False)
 
-for f in ("by_alpha", "by_year", "asset_wins", "power"):
+# 7. Disclosure: the originally planned hypothesis family (spec 7ae19a2), evaluated on the fresh data.
+L = per["ALL"]
+orig = [("orig_H1", "r1", "r0"), ("orig_H2", "r2_mlp", "r0"), ("orig_H3a", "r2_mlp", "min_score"),
+        ("orig_H3b", "r2_mlp", "mean"), ("orig_H4", "r2_linear", "r0")]
+pd.DataFrame([dm_row(L, n, lo, hi, alpha=MAIN) for n, lo, hi in orig]).to_csv(T / "original_family.csv", index=False)
+
+for f in ("by_alpha", "by_year", "asset_wins", "power", "original_family"):
     print(f"--- {f}")
     print(pd.read_csv(T / f"{f}.csv").round(4).to_string(index=False))
 print("--- mechanism", mech_summary)

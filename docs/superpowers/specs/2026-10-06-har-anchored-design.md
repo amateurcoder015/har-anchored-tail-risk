@@ -65,7 +65,7 @@ Equal-weight mean, median, Taylor (2020) minimum-score and relative-score combin
 - Daily OHLC from Yahoo Finance, 2015-01-01 to 2026-09-30, frozen with a SHA-256 manifest; India VIX as before.
 - Same cleaning as the predecessor: adjusted-close log returns, no-trade rows dropped, Diwali Muhurat sessions excluded, VIX forward-filled at most one day, outliers (|r| > 10%) reviewed with a written rule.
 - Development universe: the 20 assets of the predecessor (8 development + 12 held-out). Their frozen raw files are copied from the predecessor repository with their manifests.
-- Fresh universe: about 25 NSE single-stock F&O constituents, never used before. Selection rule, fixed in the pre-registration before any download: traded in F&O through the whole window, not among the 20 development assets, at most 3 per sector, taken in order from the current NSE F&O list sorted by sector then by name.
+- Fresh universe: about 25 NSE single-stock F&O constituents, never used before. Selection rule, fixed in the pre-registration before any download: traded in F&O through the whole window, not among the 20 development assets, at most 3 per sector, taken in order from the current NSE F&O list sorted by sector then by name. (Not followed as written: the registered list was chosen by sector and size before download; disclosed in the pre-registration's post-registration notes.)
 - Test period for both universes: 2023-01-01 to 2026-09-30. Base forecasts and R1 start out-of-sample on 2020-01-01.
 
 ## 4. Development protocol

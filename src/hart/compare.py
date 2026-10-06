@@ -8,7 +8,7 @@ from volgate.risk.fz import fz0_loss
 START, END = "2023-01-01", "2026-09-30"
 
 
-def forecasts(processed, asset, alpha):
+def forecasts(processed, asset, alpha, gate_dirs=("gate",)):
     """VaR/ES forecasts of R0, R1, baselines, R2 variants and every gate file for one asset."""
     t = alpha_tag(alpha)
     df = load_asset(processed, asset)
@@ -21,18 +21,18 @@ def forecasts(processed, asset, alpha):
         g = pd.read_csv(f, parse_dates=["date"])
         gi = g[g.asset == asset].set_index("date")
         fc[f"r2_{f.stem}"] = (gi["var"], gi["es"])
-    for f in sorted((processed / "gate" / t).glob("*.csv")):
+    for f in sorted(f for d in gate_dirs for f in (processed / d / t).glob("*.csv")):
         g = pd.read_csv(f, parse_dates=["date"])
         gi = g[g.asset == asset].set_index("date")
         fc[f.stem] = (gi["var"], gi["es"])
     return df["log_return"], fc
 
 
-def loss_frames(processed, assets, alpha, start=START, end=END):
+def loss_frames(processed, assets, alpha, start=START, end=END, gate_dirs=("gate",)):
     """Per-asset FZ0 loss frames on dates common to all methods, plus pooled 'ALL'."""
     per = {}
     for asset in assets:
-        y, fc = forecasts(processed, asset, alpha)
+        y, fc = forecasts(processed, asset, alpha, gate_dirs)
         dates = y.loc[start:end].dropna().index
         for v, _ in fc.values():
             dates = dates.intersection(v.dropna().index)

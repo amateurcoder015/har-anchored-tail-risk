@@ -46,10 +46,10 @@ Pooled over 27 stocks, α = 2.5%, test period 2023-01 to 2026-09 (`results/fresh
 What this shows:
 
 - **Learned gates without level control fail, and level control fixes most of it.** The original gate is significantly worse than HAR and than the same gate with scale shrinkage. It also has the worst exception clustering: the DQ test rejects for 11 of 27 stocks, against 2 for the gate with level control (`backtest_rejections.csv`). This replicates the predecessor's development and held-out results and this project's development results, now on stocks chosen and registered in advance.
-- **HAR does not beat simple combinations.** HAR, equal weights, Taylor's combinations and the level-controlled gate are statistically indistinguishable and all sit in the 10% Model Confidence Set (`mcs.csv`). The single GARCH-family models, EWMA, the VIX model, the median combination and the original gate are excluded.
+- **HAR does not beat simple combinations.** HAR, equal weights, Taylor's combinations, previous-best selection and the level-controlled gate are statistically indistinguishable and all sit in the 10% Model Confidence Set (`mcs.csv`). The single GARCH-family models, EWMA, the VIX model, the median combination and the original gate are excluded.
 - **Secondary results:**
   - R2-MLP, a bounded and level-controlled correction of HAR, has the lowest pooled loss at α = 2.5% and 5%, and beats HAR on 17 of 27 stocks. Its pooled advantage is not significant (one-sided p = 0.21).
-  - R1 is significantly worse than HAR (`secondary.csv`).
+  - R1 is significantly worse than HAR (DM 3.57, two-sided p ≈ 0.0004; `secondary.csv`).
 
 Pooled mean FZ0 by tail level (`compare.csv`):
 
@@ -63,6 +63,25 @@ Pooled mean FZ0 by tail level (`compare.csv`):
 | gate_v2 (level control) | -2.9037 | -3.1743 | -3.3920 |
 | R1 | -2.8380 | -3.1479 | -3.3772 |
 | Original gate | | -3.1460 | |
+
+### Disclosures
+
+- The confirmatory family above replaced an earlier one (R1 and R2 as the main contributions) after development and before the fresh download. The earlier family was evaluated on the fresh data for transparency; none of it is supported (`results/fresh/tables/robustness/original_family.csv`).
+- The fresh stocks were chosen by sector and size, not by the mechanical rule in the design spec.
+- Pooled tests use the 919 dates common to all 27 stocks.
+
+Details: post-registration notes in [the pre-registration](docs/preregistration/2026-10-06-fresh.md).
+
+## Robustness checks (exploratory, not pre-registered)
+
+Files in `results/fresh/tables/robustness/`. None of these tests is corrected for multiple comparisons.
+
+- **Tail levels** (`by_alpha.csv`). H3 holds at α = 1%, 2.5% and 5% (one-sided p 0.010, 0.0003, 0.005). H4 holds at 2.5% and 5% (0.0007, 0.004) and is borderline at 1% (0.057). The original gate's 1% and 5% runs were made after the results commit.
+- **Years** (`by_year.csv`). H3 is significant in 2023, 2024 and 2026 and has the same sign in 2025. H4 is significant in 2024 and 2026, has the same sign in 2025 and the opposite sign (not significant) in 2023. H1 looks significant in 2023 and 2025 but reverses in 2026; this is not evidence for H1.
+- **Stocks** (`asset_wins.csv`). The level-controlled gate beats the original gate on 25 of 27 stocks; HAR beats the original gate on 22 of 27.
+- **Mechanism** (`mechanism.csv`). Across 108 stock-years, the original gate's mean log scale factor correlates −0.45 with its loss gap to HAR (more shrinkage, bigger loss); average shrinkage is about 6%. This is descriptive: cells are not independent and the scale enters the forecast directly.
+- **ES backtest** (`as_z2_summary.csv`). Acerbi–Székely Z2 with 5% critical values simulated for each stock's sample length (about −0.37 for 919 days). Rejections out of 27: original gate 9, R1 10, HAR 5, R2-linear 5, R2-MLP 4, Taylor minimum score 4, gate with level control 3, equal weights 0.
+- **Power** (`power.csv`). With the observed effect sizes and cross-stock correlation, no number of additional stocks would make H1, H2 or R2-MLP vs HAR significant (the achievable DM statistic is capped below 1.1). A further "more stocks" test is therefore not worth running.
 
 ## Pre-registered test (design)
 
@@ -91,8 +110,9 @@ Hypotheses, the asset list and the code commit are fixed in [docs/preregistratio
 ```bash
 uv sync
 uv run pytest -q                      # unit, gradient and look-ahead tests
-make prepare base combos gate r1 r2 compare hypotheses            # development universe
-VOLGATE_CONFIG=configs/fresh.yaml make download prepare base combos gate r1 r2 compare hypotheses
+make prepare base combos gate table evaluate r1 r2 compare hypotheses   # development universe
+VOLGATE_CONFIG=configs/fresh.yaml make prepare base combos gate table evaluate r1 r2 compare hypotheses robustness
+# raw data in data/*/raw is frozen; `make download` refuses to overwrite it
 ```
 
 ## Layout
