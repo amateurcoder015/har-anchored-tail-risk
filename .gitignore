@@ -5,3 +5,4 @@ __pycache__/
 .pytest_cache/
 .superpowers/
 data/*/processed/
+paper-overleaf.zip
