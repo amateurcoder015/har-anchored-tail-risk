@@ -1,17 +1,78 @@
 # HAR-Anchored Tail-Risk Forecasting
 
-Research code for forecasting daily Value-at-Risk (VaR) and Expected Shortfall (ES) for Indian equities. The method starts from a HAR model on range-based volatility and adds (1) a better econometric anchor fitted directly to a joint VaR/ES loss and (2) a small, bounded, state-dependent correction of that anchor.
+Research code for forecasting daily Value-at-Risk (VaR) and Expected Shortfall (ES) for Indian equities, and for testing whether adaptive combinations of risk models beat a simple range-based HAR model.
 
-> **Status:** design stage. No code or results yet.
+> **Status:** development finished; pre-registered test on 27 never-used NSE stocks in progress. No fresh-universe results yet.
 
-This project follows [state-dependent-gate-trained-on-FZ-loss](https://github.com/amateurcoder015/state-dependent-gate-trained-on-FZ-loss), where a neural combination gate did not beat simple combinations in a pre-registered test, and HAR on range-based variance was the strongest single model.
+## Question
 
-## Plan
+Can forecast combinations or learned, state-dependent corrections beat a HAR model on range-based variance for joint VaR/ES forecasting? If adaptive methods fail, is the cause a learned level shift ("level drift"), as forecast-combination and location-shift theory would predict?
 
-- **R0:** HAR on Garman–Klass variance (baseline).
-- **R1:** HAR-X joint VaR/ES regression on three range estimators and India VIX, fitted by minimising the FZ0 loss.
-- **R2:** bounded state correction of the better anchor (MLP and linear versions), trained on FZ0.
+## What has been found so far
 
-The methods are developed on 20 NSE assets used before, then tested once on about 25 NSE stocks never used in either project, with hypotheses and decision rules published on GitHub before the fresh data is downloaded.
+**Predecessor project** ([state-dependent-gate-trained-on-FZ-loss](https://github.com/amateurcoder015/state-dependent-gate-trained-on-FZ-loss)): a neural gate over six risk models, trained on the FZ0 joint VaR/ES loss, did not beat equal weights or Taylor (2020) combinations in a pre-registered held-out test on 12 stocks. HAR on range-based variance was the only member of the 10% Model Confidence Set.
 
-Design: [docs/superpowers/specs/2026-10-06-har-anchored-design.md](docs/superpowers/specs/2026-10-06-har-anchored-design.md)
+**This project, development universe** (the predecessor's 20 assets, test period 2023-01 to 2026-09, full log in [docs/devlog.md](docs/devlog.md)). Pooled mean FZ0 loss, lower is better:
+
+| Method | α = 1% | α = 2.5% | α = 5% |
+|---|---|---|---|
+| R0: HAR on Garman–Klass variance | -2.9765 | **-3.2589** | -3.4787 |
+| R2-MLP: bounded correction of HAR, with level control | -2.9716 | -3.2572 | **-3.4799** |
+| R2-linear | -2.9662 | -3.2542 | -3.4795 |
+| gate_v2 (predecessor gate with scale shrinkage) | -2.9629 | -3.2543 | -3.4763 |
+| Taylor minimum score | -2.9631 | -3.2495 | -3.4796 |
+| Equal-weight mean | -2.9568 | -3.2404 | -3.4675 |
+| R1: HAR-X fitted directly on FZ0 | -2.9137 | -3.2369 | -3.4680 |
+
+- No method beats HAR significantly. HAR beats the equal-weight mean significantly at α = 2.5% (DM 2.20, p = 0.028).
+- R2's first version learned a level shift (VaR about 6% smaller on average) and lost to HAR. Penalising the average correction (revision 1) brought it level with HAR.
+- R1 is worse than HAR at every level, in line with the known lower accuracy of FZ-loss estimation compared with maximum likelihood.
+
+These are development results; the methods were tuned on this data.
+
+## Pre-registered test
+
+Hypotheses, the asset list and the code commit are fixed in [docs/preregistration/2026-10-06-fresh.md](docs/preregistration/2026-10-06-fresh.md), pushed before any fresh data was downloaded. At α = 2.5%, pooled, one-sided DM tests with Holm correction:
+
+- H1: HAR < equal-weight mean
+- H2: HAR < Taylor minimum-score combination
+- H3: HAR < original gate (no level control)
+- H4: gate with level control < gate without it
+
+## Positioning
+
+- To our knowledge this is the first pre-registered evaluation of VaR/ES forecast combination (no prior example found in OpenAlex or web searches).
+- The level-drift explanation applies existing theory (Claeskens et al. 2016; Elliott and Liao 2026; Clements and Hendry on location shifts) to learned VaR/ES corrections; it is not presented as new theory.
+- Range-based tail-risk models (Taylor 2020) and HAR are established; the contribution is pre-registered evidence for Indian equities, a tested explanation of why adaptive combinations fail there, and an open, leakage-tested benchmark.
+
+## Methods
+
+- **R0:** HAR on log Garman–Klass variance, VaR/ES from empirical standardized residuals, refitted every 21 trading days.
+- **R1:** VaR = −exp(a + b'z), ES = VaR·(1 + exp(c)), z = log daily, weekly and monthly Garman–Klass, Parkinson and Rogers–Satchell variances plus log VIX variance; fitted by minimising FZ0.
+- **R2:** VaR = VaR_HAR·exp(c_v), ES = VaR + (ES_HAR − VaR_HAR)·exp(c_s), c = 0.25·tanh(f(x)); f is an MLP or linear in vol-of-vol, India VIX, VIX change, variance risk premium, HAR's trailing loss and lagged returns; trained on FZ0 with penalties on the size and on the average of the corrections.
+- **Comparisons:** six base models (EWMA, GARCH-t, EGARCH-t, GJR-t, HAR, India VIX), equal-weight mean, median, Taylor (2020) minimum and relative score, and the predecessor's gates.
+
+## Reproducing
+
+```bash
+uv sync
+uv run pytest -q                      # unit, gradient and look-ahead tests
+make prepare base combos gate r1 r2 compare hypotheses            # development universe
+VOLGATE_CONFIG=configs/fresh.yaml make download prepare base combos gate r1 r2 compare hypotheses
+```
+
+## Layout
+
+```
+configs/                dev.yaml, fresh.yaml, expiry_rules.yaml
+src/volgate/            pipeline ported from the predecessor (see NOTICE.md)
+src/hart/               range estimators, R1, R2, comparison and hypothesis tests
+scripts/                numbered pipeline stages
+data/dev, data/fresh    frozen raw data and outlier decisions
+docs/                   design spec, plans, development log, pre-registration
+results/dev, results/fresh   generated tables
+```
+
+## Credit
+
+`src/volgate/` and scripts 01–07 come from the predecessor project; see [NOTICE.md](NOTICE.md).

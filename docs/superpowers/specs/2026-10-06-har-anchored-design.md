@@ -76,14 +76,16 @@ Equal-weight mean, median, Taylor (2020) minimum-score and relative-score combin
 
 ## 5. Pre-registered hypotheses (fresh universe, α = 2.5%, pooled cross-asset average loss)
 
-- H1: R1 has lower mean FZ0 than R0.
-- H2: R2-MLP has lower mean FZ0 than its anchor.
-- H3: R2-MLP has lower mean FZ0 than Taylor minimum score and than the equal-weight mean (both comparisons must hold).
-- H4: R2-linear has lower mean FZ0 than its anchor.
+Revised 2026-10-06 after development (see `docs/devlog.md` and section 10). The original H1–H4 tested R1 and R2 as the main contributions; development showed neither beats R0, and a literature check showed the level-drift explanation of combination failure follows established theory. The confirmatory family is now:
 
-Test: Diebold–Mariano with Newey–West variance and HLN correction, one-sided. Multiple testing: Holm correction across H1–H4 at family-wise level 0.05 (for H3, the larger of its two p-values is used).
+- H1: R0 (HAR) has lower mean FZ0 than the equal-weight mean of the six base models.
+- H2: R0 has lower mean FZ0 than Taylor (2020) minimum-score combining.
+- H3: R0 has lower mean FZ0 than the original state-dependent gate (`gate`, no level control).
+- H4: `gate_v2` (scale shrinkage, i.e. level control) has lower mean FZ0 than `gate`.
 
-Reported without decision rules: α = 1% and 5%, per-asset results, Model Confidence Set (10%), Kupiec, Christoffersen, DQ and McNeil–Frey backtests, results by year, and the development-universe results.
+Test: Diebold–Mariano with Newey–West variance and HLN correction, one-sided in the stated direction; Holm correction across H1–H4 at family-wise level 0.05.
+
+Secondary, reported without multiplicity claims: R2-MLP and R2-linear against R0 (one-sided, R2 lower), R1 against R0, Model Confidence Set (10%), backtests, α = 1% and 5%, per-asset and by-year results.
 
 ## 6. Repository layout
 
@@ -100,11 +102,11 @@ results/{dev,fresh}/tables, results/{dev,fresh}/figures
 
 The ported package keeps its name and git history reference; README credits the predecessor repository.
 
-## 7. Outcomes and fallbacks
+## 7. Outcomes and fallbacks (revised 2026-10-06)
 
-- H2 or H4 supported: method paper (anchored correction).
-- Only H1 supported: econometrics paper (HAR-X joint VaR/ES regression for Indian stocks).
-- Nothing supported: second pre-registered null result; together with the predecessor this supports a replication paper on tail-risk combination in Indian equities.
+- H1–H3 supported: confirmatory evidence that range-based HAR matches or beats combinations and neural gating for Indian equities.
+- H4 supported: evidence that learned gates fail through level drift and that level control closes most of the gap, consistent with combination-puzzle and location-shift theory.
+- Nothing supported: pre-registered null evidence across three universes, reported as such.
 
 ## 8. Testing and integrity
 
@@ -118,3 +120,10 @@ The ported package keeps its name and git history reference; README credits the 
 1. Port the predecessor pipeline and data; range estimators; R1 with tests; development run of R0 vs R1.
 2. R2 (MLP and linear) with tests; development runs within the design budget; devlog; anchor choice.
 3. Freeze, pre-register, select and download the fresh universe, run once, evaluate, report.
+
+## 10. Positioning (literature check, 2026-10-06)
+
+- No pre-registered VaR/ES or volatility-forecasting study was found (OpenAlex and web search); the claim is stated as "to our knowledge".
+- No joint VaR/ES study of Indian equities with FZ loss, Taylor (2020) combinations and neural gates was found.
+- Level drift as a cause of combination failure is an application of Claeskens et al. (2016, IJF), Elliott and Liao (2026, JBES) and Clements and Hendry's location-shift theory; it is presented as evidence in a new setting, not as a new theory.
+- Range-based tail-risk models (Taylor 2020, EJOR; HAR-range in Taylor 2020, IJF) and the weaker accuracy of FZ estimation relative to MLE (Patton, Ziegel and Chen 2019) are cited, not claimed.

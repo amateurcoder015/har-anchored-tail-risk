@@ -54,3 +54,7 @@ Pooled mean FZ0 (`results/dev/tables/compare.csv`; Run 1 table kept in `compare_
 R2-MLP now beats R0 on 10 of 20 assets at α = 2.5% (6 in Run 1) and has slightly lower pooled loss than R0 at α = 5%; at 1% and 2.5% R0 is still lower. Mean test-period correction for R2-MLP: c_v = -0.024 (std 0.078), c_s = -0.001.
 
 **Status.** No method beats R0 on development data. Revisions used: 1 of 3. Paused here for a decision before spending the fresh universe.
+
+## Development frozen (2026-10-06)
+
+Final settings: anchor R0, λ_c = 1, λ_m = 100; 1 of 3 revisions used. Hypotheses revised before the fresh test (spec section 5); dry run of the hypothesis script on development data: H1, H3, H4 supported after Holm correction, H2 not.

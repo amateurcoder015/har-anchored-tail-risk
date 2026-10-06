@@ -1,0 +1,94 @@
+# Fresh universe for the pre-registered test (docs/preregistration/2026-10-06-fresh.md).
+start: '2015-01-01'
+end: '2026-09-30'
+oos_start: '2020-01-01'
+refit_every: 21
+alphas:
+- 0.01
+- 0.025
+- 0.05
+outlier_threshold: 0.1
+vix: ^INDIAVIX
+assets:
+  hdfcbank: HDFCBANK.NS
+  kotakbank: KOTAKBANK.NS
+  axisbank: AXISBANK.NS
+  tcs: TCS.NS
+  wipro: WIPRO.NS
+  hcltech: HCLTECH.NS
+  mm: M&M.NS
+  eichermot: EICHERMOT.NS
+  heromotoco: HEROMOTOCO.NS
+  cipla: CIPLA.NS
+  lupin: LUPIN.NS
+  auropharma: AUROPHARMA.NS
+  jswsteel: JSWSTEEL.NS
+  vedl: VEDL.NS
+  sail: SAIL.NS
+  britannia: BRITANNIA.NS
+  dabur: DABUR.NS
+  marico: MARICO.NS
+  ntpc: NTPC.NS
+  powergrid: POWERGRID.NS
+  bpcl: BPCL.NS
+  ultracemco: ULTRACEMCO.NS
+  grasim: GRASIM.NS
+  ambujacem: AMBUJACEM.NS
+  asianpaint: ASIANPAINT.NS
+  upl: UPL.NS
+  pidilitind: PIDILITIND.NS
+contracts:
+  hdfcbank: STOCK
+  kotakbank: STOCK
+  axisbank: STOCK
+  tcs: STOCK
+  wipro: STOCK
+  hcltech: STOCK
+  mm: STOCK
+  eichermot: STOCK
+  heromotoco: STOCK
+  cipla: STOCK
+  lupin: STOCK
+  auropharma: STOCK
+  jswsteel: STOCK
+  vedl: STOCK
+  sail: STOCK
+  britannia: STOCK
+  dabur: STOCK
+  marico: STOCK
+  ntpc: STOCK
+  powergrid: STOCK
+  bpcl: STOCK
+  ultracemco: STOCK
+  grasim: STOCK
+  ambujacem: STOCK
+  asianpaint: STOCK
+  upl: STOCK
+  pidilitind: STOCK
+special_sessions:
+- '2015-11-11'
+- '2016-10-30'
+- '2017-10-19'
+- '2018-11-07'
+- '2019-10-27'
+- '2020-11-14'
+- '2021-11-04'
+- '2022-10-24'
+- '2023-11-12'
+- '2024-11-01'
+- '2025-10-21'
+main_variant: gate_v2
+gate_variants:
+- gate_v2
+- gate
+r2:
+  anchor: r0
+  lam_c: 1.0
+  lam_mean: 100.0
+paths:
+  raw: data/fresh/raw
+  audit: data/fresh/audit
+  processed: data/fresh/processed
+  tables: results/fresh/tables
+  figures: results/fresh/figures
+  expiry_rules: configs/expiry_rules.yaml
