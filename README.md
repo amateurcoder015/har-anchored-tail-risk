@@ -2,7 +2,7 @@
 
 Research code for forecasting daily Value-at-Risk (VaR) and Expected Shortfall (ES) for Indian equities, and for testing whether adaptive combinations of risk models beat a simple range-based HAR model.
 
-> **Status:** development finished; pre-registered test on 27 never-used NSE stocks in progress. No fresh-universe results yet.
+> **Status:** pre-registered test on 27 never-used NSE stocks complete. Two of four pre-registered hypotheses supported (H3, H4: level drift); H1 and H2 (HAR beats combinations) not supported.
 
 ## Question
 
@@ -30,7 +30,41 @@ Can forecast combinations or learned, state-dependent corrections beat a HAR mod
 
 These are development results; the methods were tuned on this data.
 
-## Pre-registered test
+## Pre-registered test: results
+
+Hypotheses, asset list and code were fixed in [docs/preregistration/2026-10-06-fresh.md](docs/preregistration/2026-10-06-fresh.md) and tagged `prereg-fresh` before any fresh data was downloaded. The study was run once. The only post-download decision was the pre-registered outlier rule: one row dropped (VEDL 2026-04-30, the unadjusted Vedanta demerger ex-date); all 27 stocks met the coverage rule.
+
+Pooled over 27 stocks, α = 2.5%, test period 2023-01 to 2026-09 (`results/fresh/tables/hypotheses.csv`):
+
+| Hypothesis | Mean FZ0 (lower vs higher) | DM | One-sided p | Holm p | Result |
+|---|---|---|---|---|---|
+| H1: HAR < equal-weight mean | -3.1808 vs -3.1752 | -0.53 | 0.300 | 0.600 | not supported |
+| H2: HAR < Taylor minimum score | -3.1808 vs -3.1799 | -0.09 | 0.463 | 0.600 | not supported |
+| H3: HAR < original gate (no level control) | -3.1808 vs -3.1460 | -3.47 | 0.0003 | 0.001 | **supported** |
+| H4: gate with level control < original gate | -3.1743 vs -3.1460 | -3.19 | 0.0007 | 0.002 | **supported** |
+
+What this shows:
+
+- **Learned gates without level control fail, and level control fixes most of it.** The original gate is significantly worse than HAR and than the same gate with scale shrinkage. It also has the worst exception clustering: the DQ test rejects for 11 of 27 stocks, against 2 for the gate with level control (`backtest_rejections.csv`). This replicates the predecessor's development and held-out results and this project's development results, now on stocks chosen and registered in advance.
+- **HAR does not beat simple combinations.** HAR, equal weights, Taylor's combinations and the level-controlled gate are statistically indistinguishable and all sit in the 10% Model Confidence Set (`mcs.csv`). The single GARCH-family models, EWMA, the VIX model, the median combination and the original gate are excluded.
+- **Secondary results:**
+  - R2-MLP, a bounded and level-controlled correction of HAR, has the lowest pooled loss at α = 2.5% and 5%, and beats HAR on 17 of 27 stocks. Its pooled advantage is not significant (one-sided p = 0.21).
+  - R1 is significantly worse than HAR (`secondary.csv`).
+
+Pooled mean FZ0 by tail level (`compare.csv`):
+
+| Method | α = 1% | α = 2.5% | α = 5% |
+|---|---|---|---|
+| R2-MLP | -2.9107 | **-3.1844** | **-3.3970** |
+| R2-linear | -2.9090 | -3.1824 | -3.3967 |
+| R0: HAR | **-2.9166** | -3.1808 | -3.3948 |
+| Taylor minimum score | -2.9065 | -3.1799 | -3.3954 |
+| Equal-weight mean | -2.9106 | -3.1752 | -3.3881 |
+| gate_v2 (level control) | -2.9037 | -3.1743 | -3.3920 |
+| R1 | -2.8380 | -3.1479 | -3.3772 |
+| Original gate | | -3.1460 | |
+
+## Pre-registered test (design)
 
 Hypotheses, the asset list and the code commit are fixed in [docs/preregistration/2026-10-06-fresh.md](docs/preregistration/2026-10-06-fresh.md), pushed before any fresh data was downloaded. At α = 2.5%, pooled, one-sided DM tests with Holm correction:
 

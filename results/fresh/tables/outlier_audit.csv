@@ -1,0 +1,130 @@
+asset,date,log_return,close_return,action,note
+hdfcbank,2020-03-18,-0.10614703447487717,-0.10614701617693711,keep,COVID-19 crash period; market-wide
+hdfcbank,2020-03-23,-0.13475378388400117,-0.13475382039933947,keep,COVID-19 crash period; market-wide
+hdfcbank,2020-03-25,0.10974718299977759,0.10974711302008178,keep,COVID-19 crash period; market-wide
+kotakbank,2020-03-18,-0.12100633223642898,-0.12100610882619645,keep,COVID-19 crash period; market-wide
+kotakbank,2020-03-23,-0.1392571009984609,-0.13925709197625036,keep,COVID-19 crash period; market-wide
+kotakbank,2020-03-25,0.11247789844770395,0.11247797075475141,keep,COVID-19 crash period; market-wide
+kotakbank,2020-10-27,0.11378374107585731,0.11378352784692591,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+kotakbank,2024-04-25,-0.1150971347173888,-0.11509714767130941,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+axisbank,2015-03-02,0.13257223429163556,0.13257212976651989,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+axisbank,2020-03-12,-0.13110100420894089,-0.13110088244482299,keep,COVID-19 crash period; market-wide
+axisbank,2020-03-16,-0.11186694641542339,-0.11186699203936534,keep,COVID-19 crash period; market-wide
+axisbank,2020-03-19,-0.10033927145325894,-0.10033919900842658,keep,COVID-19 crash period; market-wide
+axisbank,2020-03-23,-0.3272656488842518,-0.32726565815161823,keep,COVID-19 crash period; market-wide
+axisbank,2020-04-07,0.1779847438654123,0.17798480331071875,keep,COVID-19 crash period; market-wide
+axisbank,2020-04-17,0.12497522875684286,0.12497519408723701,keep,COVID-19 crash period; market-wide
+axisbank,2020-05-27,0.12566285216315976,0.12566287288340128,keep,COVID-19 crash period; market-wide
+wipro,2020-07-15,0.155102703199951,0.1551026075526405,keep,COVID-19 crash period; market-wide
+hcltech,2015-10-01,-0.13624791564653904,-0.13624782532807256,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+hcltech,2020-04-07,0.1059394464802379,0.10593946760139872,keep,COVID-19 crash period; market-wide
+hcltech,2020-04-30,0.10015102233935735,0.10015121892286771,keep,COVID-19 crash period; market-wide
+hcltech,2026-04-22,-0.11448392442685762,-0.11448387388799386,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+mm,2020-04-07,0.1341545390972403,0.13415459627435933,keep,COVID-19 crash period; market-wide
+mm,2020-04-09,0.15572505912375512,0.15572507277293823,keep,COVID-19 crash period; market-wide
+mm,2020-11-18,0.10209887976748266,0.1020990238773738,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+eichermot,2019-09-20,0.1255756769766485,0.12557570169549415,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+eichermot,2020-03-23,-0.13446061408598808,-0.13446076718481503,keep,COVID-19 crash period; market-wide
+heromotoco,2019-09-20,0.12272681443883293,0.12272682741345697,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+heromotoco,2020-03-23,-0.11651683770261378,-0.11651708130340399,keep,COVID-19 crash period; market-wide
+heromotoco,2020-04-07,0.11180598207417969,0.11180593414062212,keep,COVID-19 crash period; market-wide
+cipla,2020-04-09,0.12254990019590828,0.1225497713717747,keep,COVID-19 crash period; market-wide
+lupin,2017-11-07,-0.1849056449924804,-0.18490574393426495,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+lupin,2020-04-03,0.1245431863774753,0.12454325848683201,keep,COVID-19 crash period; market-wide
+lupin,2020-04-09,0.11317443824907247,0.1131743616609695,keep,COVID-19 crash period; market-wide
+lupin,2021-05-05,0.12640507286385816,0.1264051094925387,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+auropharma,2015-08-24,-0.11955595685682496,-0.11955603531683767,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+auropharma,2017-05-30,0.12443970474263644,0.12443957249176751,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+auropharma,2019-10-07,-0.21034061010148264,-0.21034038673401145,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+auropharma,2020-02-19,0.18460043434058981,0.18460043786523173,keep,COVID-19 crash period; market-wide
+auropharma,2020-02-24,-0.17393682222221862,-0.17393663364843537,keep,COVID-19 crash period; market-wide
+auropharma,2020-03-12,-0.1839891837231571,-0.18398904403836358,keep,COVID-19 crash period; market-wide
+auropharma,2020-03-13,0.10316854847260526,0.10316855829476879,keep,COVID-19 crash period; market-wide
+auropharma,2020-03-18,-0.12773994781763331,-0.12773991697164178,keep,COVID-19 crash period; market-wide
+auropharma,2020-03-23,-0.16250203589020806,-0.1625019567346424,keep,COVID-19 crash period; market-wide
+auropharma,2020-03-24,0.10139940643300527,0.10139944836273518,keep,COVID-19 crash period; market-wide
+auropharma,2020-04-07,0.15317893370181768,0.15317894212478844,keep,COVID-19 crash period; market-wide
+auropharma,2020-04-21,0.1749925784914943,0.17499281348982532,keep,COVID-19 crash period; market-wide
+auropharma,2022-11-10,-0.12496615772850195,-0.12496621293121812,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+jswsteel,2020-03-16,-0.14442599955297641,-0.14442610153360835,keep,COVID-19 crash period; market-wide
+jswsteel,2020-03-23,-0.1964754115576799,-0.19647534650016318,keep,COVID-19 crash period; market-wide
+jswsteel,2020-04-07,0.11659788416386263,0.11659784039031607,keep,COVID-19 crash period; market-wide
+jswsteel,2022-05-23,-0.1420105633433204,-0.14201053047740153,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2015-08-24,-0.15397438660376128,-0.15397451762145042,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2015-10-09,0.10901323137006314,0.10901365285206754,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2016-02-15,0.17039274344320265,0.17039298592868057,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2018-10-08,-0.11371743820587099,-0.11371725161085067,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2019-02-01,-0.19645707601551354,-0.19645703792406444,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2020-02-28,-0.13555777064069385,-0.13555787012680298,keep,COVID-19 crash period; market-wide
+vedl,2020-03-09,-0.15715687393113953,-0.1571568561266803,keep,COVID-19 crash period; market-wide
+vedl,2020-03-12,-0.14163878899104843,-0.14163872149733514,keep,COVID-19 crash period; market-wide
+vedl,2020-03-16,-0.11592549976123134,-0.11592580568364763,keep,COVID-19 crash period; market-wide
+vedl,2020-03-23,-0.1859067490756905,-0.18590643906875126,keep,COVID-19 crash period; market-wide
+vedl,2020-04-30,0.1234524239590038,0.12345235698019508,keep,COVID-19 crash period; market-wide
+vedl,2020-05-04,-0.11339584833166283,-0.11339576147640162,keep,COVID-19 crash period; market-wide
+vedl,2020-05-12,0.11218389925638883,0.11218397032482663,keep,COVID-19 crash period; market-wide
+vedl,2020-10-07,-0.11150285078107425,-0.11150290993376188,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2020-10-12,-0.22859566706152767,-0.22859541733760036,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2021-08-17,-0.104370474814794,-0.1043704367006919,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2021-10-18,0.12142561269496888,0.12142543664640026,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2022-05-17,0.1114366196757457,0.11143641707520668,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2022-06-20,-0.13572588884059922,-0.1357258315932235,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2024-05-21,0.10508931065254501,0.10508942297559454,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2026-01-30,-0.1172693869800483,-0.11726935448116738,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+vedl,2026-04-30,-1.046908673052367,-1.046908673052367,drop,"unadjusted demerger: Vedanta demerger ex-date 2026-04-30 (record date 2026-05-01); raw open 289.50 vs prior close 773.60, Yahoo adj_close not adjusted"
+sail,2015-08-24,-0.1000834673055282,-0.10008351628163048,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2017-10-26,0.13846314656378045,0.13846320123495115,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2020-03-09,-0.1019993915540307,-0.10199919355711673,keep,COVID-19 crash period; market-wide
+sail,2020-03-12,-0.1518344511664389,-0.15183449272119143,keep,COVID-19 crash period; market-wide
+sail,2020-03-13,0.1792805052080344,0.17928044351134487,keep,COVID-19 crash period; market-wide
+sail,2020-03-23,-0.1513455341737071,-0.15134562423061215,keep,COVID-19 crash period; market-wide
+sail,2020-03-31,0.12213096758787234,0.1221308541926569,keep,COVID-19 crash period; market-wide
+sail,2020-04-07,0.12162481780465706,0.12162481029629824,keep,COVID-19 crash period; market-wide
+sail,2021-01-14,-0.10580685522048228,-0.10580684916921257,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2021-01-22,-0.10819143950602639,-0.10819151938677685,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2021-04-12,-0.10789576974009485,-0.10789569001421206,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2022-02-24,-0.11017237058186335,-0.11017246520437407,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2022-05-23,-0.11545139610654509,-0.1154514599076446,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2024-06-04,-0.2233688315349971,-0.22336901879466886,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+sail,2026-05-13,0.1338508240940861,0.13385078920726023,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+britannia,2020-03-23,-0.1435263791225294,-0.1435263884742719,keep,COVID-19 crash period; market-wide
+britannia,2020-03-24,0.10085048824129039,0.10085044656059594,keep,COVID-19 crash period; market-wide
+britannia,2020-04-07,0.1005896364526988,0.10058957021415793,keep,COVID-19 crash period; market-wide
+dabur,2020-03-23,-0.11507233763162361,-0.11507211883196966,keep,COVID-19 crash period; market-wide
+dabur,2020-04-07,0.11001291499083976,0.11001307280508943,keep,COVID-19 crash period; market-wide
+ntpc,2024-06-04,-0.1678783274946074,-0.1678780970537268,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+powergrid,2020-03-18,-0.11674187543406855,-0.11674189886373654,keep,COVID-19 crash period; market-wide
+powergrid,2024-06-04,-0.1318192164123939,-0.1318192755607237,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+bpcl,2018-10-04,-0.13192594061426188,-0.13192588112028858,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+bpcl,2018-10-05,-0.2217101707493372,-0.22171021136820368,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+bpcl,2019-09-23,0.11009124097547218,0.11009116648208384,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+bpcl,2020-03-12,-0.16089097756480086,-0.1608911371637065,keep,COVID-19 crash period; market-wide
+bpcl,2020-03-19,-0.10217471648101828,-0.10217472706298114,keep,COVID-19 crash period; market-wide
+bpcl,2020-03-23,-0.11226052923043017,-0.16556792079821303,keep,COVID-19 crash period; market-wide
+bpcl,2020-03-31,0.1427250113237033,0.14272465415307511,keep,COVID-19 crash period; market-wide
+bpcl,2020-04-07,0.10169621128072137,0.1016962717233465,keep,COVID-19 crash period; market-wide
+bpcl,2020-07-17,0.11927682763659853,0.11927692851101845,keep,COVID-19 crash period; market-wide
+bpcl,2024-06-04,-0.13814217305874177,-0.13814201432906348,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+ultracemco,2020-03-20,0.12115872286598695,0.12115870384493554,keep,COVID-19 crash period; market-wide
+ultracemco,2020-03-23,-0.15691298513795626,-0.15691294985055038,keep,COVID-19 crash period; market-wide
+grasim,2020-03-12,-0.11048264176072653,-0.1104826847408571,keep,COVID-19 crash period; market-wide
+grasim,2020-03-23,-0.2004294965449409,-0.20042941235954892,keep,COVID-19 crash period; market-wide
+grasim,2020-03-25,0.12052860829223455,0.12052858091153329,keep,COVID-19 crash period; market-wide
+grasim,2020-04-07,0.13139864254732547,0.13139856236837577,keep,COVID-19 crash period; market-wide
+ambujacem,2019-09-20,0.11511461845226201,0.11511463574611458,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+ambujacem,2023-01-27,-0.19030638887936302,-0.19030640941845522,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+ambujacem,2023-02-01,-0.18301970470950923,-0.1830197188828393,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+ambujacem,2024-06-04,-0.1866241951461367,-0.1866242065223931,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+ambujacem,2024-11-21,-0.12670498741252256,-0.12670497585125506,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+asianpaint,2020-03-23,-0.15114789289418606,-0.1511478440064069,keep,COVID-19 crash period; market-wide
+upl,2016-05-02,0.10072058774093673,0.10072065328386337,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+upl,2018-07-23,0.13985686237261774,0.13985687074427933,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+upl,2020-03-12,-0.1530228566807441,-0.15302291241100097,keep,COVID-19 crash period; market-wide
+upl,2020-03-23,-0.16458880054269898,-0.1645886192667012,keep,COVID-19 crash period; market-wide
+upl,2020-03-25,0.11095437062155344,0.11095446173113377,keep,COVID-19 crash period; market-wide
+upl,2020-04-30,0.15260440926096308,0.15260439505473844,keep,COVID-19 crash period; market-wide
+upl,2020-05-19,-0.10114137268980183,-0.10114139682928247,keep,COVID-19 crash period; market-wide
+upl,2020-12-10,-0.11645170568634633,-0.11645169001015265,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+upl,2024-02-05,-0.11853284556490529,-0.11853291741409944,keep,no unadjusted split/bonus/demerger on date; adjusted and raw returns consistent; kept per pre-registered rule
+upl,2026-02-23,-0.15426145734231067,-0.15426143649356305,keep,market reaction to group restructuring announcement (no ex-date that day); adjusted and raw returns agree
+pidilitind,2020-03-23,-0.1665366820207579,-0.16653664260927403,keep,COVID-19 crash period; market-wide
