@@ -92,3 +92,40 @@ paths:
   tables: results/fresh/tables
   figures: results/fresh/figures
   expiry_rules: configs/expiry_rules.yaml
+sectors:
+  banks:
+  - hdfcbank
+  - kotakbank
+  - axisbank
+  it:
+  - tcs
+  - wipro
+  - hcltech
+  auto:
+  - mm
+  - eichermot
+  - heromotoco
+  pharma:
+  - cipla
+  - lupin
+  - auropharma
+  metals:
+  - jswsteel
+  - vedl
+  - sail
+  fmcg:
+  - britannia
+  - dabur
+  - marico
+  power_oil_psu:
+  - ntpc
+  - powergrid
+  - bpcl
+  cement:
+  - ultracemco
+  - grasim
+  - ambujacem
+  paints_chem:
+  - asianpaint
+  - upl
+  - pidilitind
