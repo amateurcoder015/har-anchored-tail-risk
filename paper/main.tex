@@ -5,6 +5,8 @@
 \usepackage{cite}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
+% Primitive input so table rows can be followed by \bottomrule inside tabular.
+\makeatletter\newcommand{\tabinput}[1]{\@@input #1 }\makeatother
 
 \begin{document}
 
@@ -54,10 +56,62 @@ All data, code and the pre-registration are public.\footnote{Repository: \url{ht
 \section{Methods}
 
 \subsection{Data}
-Daily open, high, low, close and adjusted close prices from Yahoo Finance, 2015-01-01 to 2026-09-30, and the India VIX. Returns are log changes of the adjusted close. Raw files are frozen with SHA-256 hashes. No-trade rows and Diwali \emph{Muhurat} sessions (about one hour of trading on an exchange holiday) are removed. Every daily return above 10\% in absolute value is reviewed; a row is dropped only for an unadjusted split, bonus or demerger. The \emph{development universe} has 20 assets (NIFTY 50, NIFTY Bank and 18 stocks). The \emph{fresh universe} has 27 stocks, three per sector, none used before (Section~\ref{sec:prereg}).
+We use daily open, high, low, close and adjusted close prices from Yahoo Finance for 2015-01-01 to 2026-09-30, together with the India VIX. Returns are $r_t=\log(P_t/P_{t-1})$ on the adjusted close. Raw downloads are frozen with SHA-256 hashes, and every later stage verifies them before running.
 
-\subsection{Base models and combinations}
-Six base models produce a VaR/ES pair each day: EWMA with filtered historical simulation \cite{riskmetrics1996}; GARCH, EGARCH and GJR-GARCH with Student-$t$ errors \cite{bollerslev1986,nelson1991,glosten1993}; HAR on log Garman--Klass variance \cite{corsi2009,garman1980} with empirical tails; and a model scaling the India VIX. All are refitted every 21 trading days on an expanding window and forecast out of sample from 2020. HAR is our anchor model R0. Baselines are the equal-weight mean, the median, previous-best selection, and Taylor's minimum-score and relative-score combinations \cite{taylor2020}.
+Three features of the Indian data needed explicit handling. First, Yahoo Finance records the one-hour Diwali \emph{Muhurat} sessions, held on exchange holidays, as ordinary trading days; a one-hour return scored as a full day distorts both the loss and the HAR lags, so these sessions are removed before returns are computed. Second, flat rows with zero volume on exchange holidays are removed rather than treated as zero returns. Third, some corporate actions are not adjusted: every daily return above 10\% in absolute value is reviewed against split, bonus and demerger records, and a row is dropped only for an unadjusted action. India VIX is forward-filled for at most one day.
+
+The \emph{development universe} has 20 assets: the NIFTY 50 and NIFTY Bank indices and 18 large stocks. The \emph{fresh universe} has 27 stocks, three per sector, none used in development (Table~\ref{tab:universe}). Table~\ref{tab:data} summarises both.
+
+\begin{table}[t]
+\centering
+\caption{Data summary}
+\label{tab:data}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+Universe & Assets & Days & Flat & Muhurat & $|r|>10\%$ & Dropped\\
+\midrule
+\tabinput{tables/data_summary.tex}
+\bottomrule
+\end{tabular}
+\par\footnotesize Days: median trading days per asset after cleaning. Flat and Muhurat: rows removed across all assets. Dropped: outliers removed as unadjusted corporate actions (Adani Enterprises 2015-06-03; Vedanta 2026-04-30).
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Fresh universe (27 NSE stocks, three per sector)}
+\label{tab:universe}
+\footnotesize
+\begin{tabular}{ll}
+\toprule
+Sector & Stocks\\
+\midrule
+\tabinput{tables/universe.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Base models}
+Six base models each produce a pair $(\mathrm{VaR}_{i,t},\mathrm{ES}_{i,t})$ for day $t$ using information up to $t-1$:
+\begin{itemize}
+\item \textbf{EWMA} \cite{riskmetrics1996}: $\sigma^2_t=\lambda\sigma^2_{t-1}+(1-\lambda)r^2_{t-1}$ with $\lambda=0.94$, and tails by filtered historical simulation.
+\item \textbf{GARCH(1,1), EGARCH(1,1) and GJR-GARCH(1,1)} \cite{bollerslev1986,nelson1991,glosten1993} with Student-$t$ errors, fitted by maximum likelihood; VaR and ES follow from the standardized $t$ quantile and tail mean.
+\item \textbf{HAR} \cite{corsi2009} on the Garman--Klass variance $v_t=\tfrac12\log(H_t/L_t)^2-(2\log2-1)\log(C_t/O_t)^2$ \cite{garman1980}:
+\begin{equation}
+\log v_t=\beta_0+\beta_d\log v_{t-1}+\beta_w\log\bar v^{(5)}_{t-1}+\beta_m\log\bar v^{(22)}_{t-1}+\varepsilon_t,
+\end{equation}
+with $\sigma^2_t=\exp(\widehat{\log v_t}+\tfrac12 s^2_\varepsilon)$. VaR and ES come from the empirical $\alpha$-quantile and tail mean of $r_t/\sigma_t$ in the estimation window. Because these tails are empirical, the level difference between open-to-close range variance and close-to-close returns cancels.
+\item \textbf{India VIX model}: $\sigma^2_t=\beta\,(\mathrm{VIX}_{t-1}/100)^2/252$, with $\beta$ estimated by least squares on $r_t^2$ and empirical tails.
+\end{itemize}
+All models are re-estimated every 21 trading days on an expanding window starting in 2015 and forecast out of sample from 2020-01-01. HAR is the anchor model R0.
+
+\subsection{Combinations}
+Let $V_{i,t}$ and $E_{i,t}$ be the base forecasts. The equal-weight mean and the median combine each column directly. Taylor's minimum-score combining \cite{taylor2020} uses two convex weight vectors, one for VaR and one for the ES--VaR spacing,
+\begin{equation}
+\mathrm{VaR}_t=\textstyle\sum_i w^Q_i V_{i,t},\quad \mathrm{ES}_t=\mathrm{VaR}_t+\sum_i w^S_i(E_{i,t}-V_{i,t}),
+\end{equation}
+fitted by minimising mean FZ0 loss. Relative-score combining sets $w_i\propto\exp(-\lambda S_i)$, where $S_i$ is model $i$'s mean FZ0 loss and $\lambda$ minimises the in-sample combined loss. Previous-best selection picks the model with the lowest past loss. All weights are re-estimated every 21 days on all earlier out-of-sample forecasts, once 250 are available.
 
 \subsection{Learned gates}
 A gate maps a state vector $x_t$ (trailing model losses, realized and implied volatility, volatility of volatility, the variance risk premium, expiry-calendar features and lagged returns, all measured before $t$) to convex weights $w^Q_t, w^S_t$ over the six models and a scale $g_t=\exp(0.5\tanh(\cdot))$:
@@ -65,13 +119,47 @@ A gate maps a state vector $x_t$ (trailing model losses, realized and implied vo
 \mathrm{VaR}_t &= g_t \textstyle\sum_i w^Q_{i,t}\,\mathrm{VaR}_{i,t},\\
 \mathrm{ES}_t &= g_t\big(\textstyle\sum_i w^Q_{i,t}\,\mathrm{VaR}_{i,t} + \sum_i w^S_{i,t}(\mathrm{ES}_{i,t}-\mathrm{VaR}_{i,t})\big),
 \end{align}
-which extends Taylor's minimum-score form \cite{taylor2020} to state-dependent weights and guarantees $\mathrm{ES}_t\le\mathrm{VaR}_t<0$. It is a one-hidden-layer network trained on mean FZ0 loss \cite{patton2019} with yearly walk-forward folds (train from 2020, validate on the next year, test on the year after), early stopping and five seeds. The \emph{level-controlled} gate adds a penalty $\lambda_g\,\overline{(\log g_t)^2}$ with $\lambda_g=10$ fixed in advance.
+which extends Taylor's minimum-score form \cite{taylor2020} to state-dependent weights. Because each base pair satisfies $E_{i,t}\le V_{i,t}<0$ and $g_t>0$, the combined pair always satisfies $\mathrm{ES}_t\le\mathrm{VaR}_t<0$. The output heads are initialised at zero, so an untrained gate reproduces the equal-weight combination exactly.
+
+The network has one hidden layer of 16 ReLU units, dropout 0.1 and a four-dimensional asset embedding, and is pooled across all stocks of a universe. It minimises mean FZ0 loss plus $\lambda_{eq}\,\overline{\|w_t-\tfrac16\mathbf 1\|^2}$ (shrinkage toward equal weights, with $\lambda_{eq}\in\{0,0.1,1,10\}$ chosen on validation) and weight decay $10^{-4}$, using Adam (learning rate $10^{-3}$, batch 256, at most 300 epochs, early stopping with patience 20). The forecast is the average over five seeds. Gradients are derived by hand and checked against finite differences in the test suite. The \emph{level-controlled} gate adds the penalty $\lambda_g\,\overline{(\log g_t)^2}$ with $\lambda_g=10$, fixed in advance rather than tuned. Table~\ref{tab:folds} gives the walk-forward protocol; feature standardization uses training rows only.
+
+\begin{table}[t]
+\centering
+\caption{Walk-forward folds for the learned methods}
+\label{tab:folds}
+\footnotesize
+\begin{tabular}{llll}
+\toprule
+Fold & Train & Validation & Test\\
+\midrule
+1 & 2020--2021 & 2022 & 2023\\
+2 & 2020--2022 & 2023 & 2024\\
+3 & 2020--2023 & 2024 & 2025\\
+4 & 2020--2024 & 2025 & 2026-01 to 2026-09\\
+\bottomrule
+\end{tabular}
+\par\footnotesize Training starts in April 2020, once the 60-day trailing-loss features are available.
+\end{table}
 
 \subsection{Anchor-based alternatives}
 R1 fits $\mathrm{VaR}_t=-\exp(a+b^\top z_t)$, $\mathrm{ES}_t=\mathrm{VaR}_t(1+e^{c})$ on log daily, weekly and monthly Garman--Klass, Parkinson and Rogers--Satchell variances and India VIX by minimising FZ0. R2 applies a bounded correction to HAR: $\mathrm{VaR}_t=\mathrm{VaR}^{\mathrm{HAR}}_t e^{c_v}$ and $\mathrm{ES}_t=\mathrm{VaR}_t+(\mathrm{ES}^{\mathrm{HAR}}_t-\mathrm{VaR}^{\mathrm{HAR}}_t)e^{c_s}$, with $c=0.25\tanh(f(x_t))$ from a small network or a linear map, trained on FZ0 with penalties on the size and on the average of the corrections.
 
 \subsection{Evaluation}
-The test period is 2023-01-01 to 2026-09-30 and the main tail level is $\alpha=2.5\%$. Forecasts are compared on the cross-stock average FZ0 loss per date with Diebold--Mariano tests \cite{diebold1995} using Newey--West variance and the correction of Harvey, Leybourne and Newbold \cite{harvey1997}, and with the Model Confidence Set \cite{hansen2011}. VaR is backtested with the Kupiec \cite{kupiec1995}, Christoffersen \cite{christoffersen1998} and dynamic quantile \cite{engle2004} tests, and ES with the Acerbi--Sz\'ekely $Z_2$ test \cite{acerbi2014}, with critical values simulated for each stock's sample length.
+The test period is 2023-01-01 to 2026-09-30 and the main tail level is $\alpha=2.5\%$, the Basel ES level; 1\% and 5\% are also reported. Forecasts are scored with the FZ0 loss \cite{patton2019},
+\begin{equation}
+L(y,v,e)=-\frac{\mathbb 1\{y\le v\}(v-y)}{\alpha e}+\frac{v}{e}+\log(-e)-1,
+\end{equation}
+which is strictly consistent for the pair (VaR, ES) \cite{fissler2016}; lower is better. Every comparison uses the dates on which all methods have forecasts for every stock.
+
+\textit{Forecast comparison.} For methods $A$ and $B$, let $d_t$ be the cross-stock average of $L_{A,t}-L_{B,t}$. The Diebold--Mariano statistic \cite{diebold1995} is $\bar d/\sqrt{\hat\sigma^2_{NW}/T}$, with Newey--West variance using $\lfloor 4(T/100)^{2/9}\rfloor$ lags, multiplied by the small-sample factor of Harvey, Leybourne and Newbold \cite{harvey1997} and compared with a $t_{T-1}$ distribution. We also report the 10\% Model Confidence Set \cite{hansen2011} (range statistic, stationary bootstrap, 2000 replications).
+
+\textit{Backtests.} With hits $I_t=\mathbb 1\{y_t\le\mathrm{VaR}_t\}$, we use the Kupiec unconditional coverage test \cite{kupiec1995}, the Christoffersen conditional coverage test \cite{christoffersen1998}, and the dynamic quantile (DQ) test \cite{engle2004}, which regresses $I_t-\alpha$ on a constant, four of its lags and $\mathrm{VaR}_t$. For ES we use the Acerbi--Sz\'ekely statistic \cite{acerbi2014}
+\begin{equation}
+Z_2=1-\frac{1}{T\alpha}\sum_t \frac{y_t I_t}{\mathrm{ES}_t},
+\end{equation}
+which is near zero for correct forecasts and negative when ES is too shallow. Its 5\% critical value depends on $T$: the value $-0.70$ in \cite{acerbi2014} is for $T=250$, so we simulate the critical value for each stock's sample length (about $-0.37$ for 919 days).
+
+\textit{Power.} To judge whether more stocks could separate two methods, we model the variance of the cross-stock average differential as $s^2(\rho+(1-\rho)/N)/T$, with $s^2$ the average per-stock long-run variance and $\rho$ calibrated to the observed pooled variance. The achievable statistic is then capped at $\bar d/\sqrt{s^2\rho/T}$ as $N\to\infty$.
 
 \section{Development and Pre-Registration}\label{sec:prereg}
 
@@ -81,7 +169,7 @@ We then fixed four hypotheses, each a one-sided DM test at $\alpha=2.5\%$ with H
 
 \section{Results}
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Pooled mean FZ0 loss (lower is better), test period 2023-01 to 2026-09}
 \label{tab:fz0}
@@ -93,12 +181,12 @@ We then fixed four hypotheses, each a one-sided DM test at $\alpha=2.5\%$ with H
 \cmidrule(lr){2-4}\cmidrule(lr){5-7}
 Method & 1\% & 2.5\% & 5\% & 1\% & 2.5\% & 5\%\\
 \midrule
-\input{tables/fz0.tex}
+\tabinput{tables/fz0.tex}
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
 \caption{Pre-registered hypotheses, fresh universe, $\alpha=2.5\%$}
 \label{tab:hyp}
@@ -108,22 +196,96 @@ Method & 1\% & 2.5\% & 5\% & 1\% & 2.5\% & 5\%\\
 \toprule
 & Hypothesis (lower loss first) & DM & $p$ & Holm $p$ & Supported\\
 \midrule
-\input{tables/hypotheses.tex}
+\tabinput{tables/hypotheses.tex}
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
 \subsection{Confirmatory results}
 Table~\ref{tab:hyp} reports the registered tests. H3 and H4 are supported: the uncontrolled gate is significantly worse than HAR and than the same gate with level control. H1 and H2 are not supported: HAR, equal weights and Taylor's combinations are statistically indistinguishable. At the 10\% level the Model Confidence Set contains HAR, equal weights, both Taylor combinations, previous-best selection and the level-controlled gate, and excludes the single GARCH-family models, EWMA, the VIX model, the median and the uncontrolled gate.
 
-The originally planned hypotheses are not supported on the fresh data either: R1 is significantly worse than HAR (DM $3.57$), and neither R2 variant beats HAR (one-sided $p=0.21$ and $0.35$), although R2 with a neural correction has the lowest point estimate at 2.5\% and 5\% and beats HAR for 17 of 27 stocks.
+Table~\ref{tab:mcs} lists the Model Confidence Set $p$-values for all methods in the comparison set of the evaluation pipeline. The ordering is informative: the methods that survive either do not rescale risk (HAR, equal weights, Taylor combinations, previous best) or rescale it only within a penalty (the level-controlled gate). Every single parametric model is excluded, which shows the value of combining or of a range-based anchor, but the survivors cannot be separated from each other.
+
+Table~\ref{tab:stock} gives the per-stock losses. Among the five main methods, HAR has the lowest loss for 10 of 27 stocks, Taylor minimum-score combining for 8, equal weights for 4, the level-controlled gate for 3 and the uncontrolled gate for 2; the margins are small, consistent with the pooled tie. The uncontrolled gate has the highest loss of the five for 18 of 27 stocks.
+
+The originally planned hypotheses (Table~\ref{tab:orig}) are not supported on the fresh data either: R1 is significantly worse than HAR (DM $3.57$), and neither R2 variant beats HAR, although R2 with a neural correction has the lowest point estimate at 2.5\% and 5\% and beats HAR for 17 of 27 stocks.
+
+\begin{table}[t]
+\centering
+\caption{10\% Model Confidence Set, pooled, fresh universe, $\alpha=2.5\%$}
+\label{tab:mcs}
+\footnotesize
+\begin{tabular}{lrl}
+\toprule
+Method & MCS $p$ & In set\\
+\midrule
+\tabinput{tables/mcs.tex}
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Mean FZ0 loss per stock, fresh universe, $\alpha=2.5\%$ (lowest in bold)}
+\label{tab:stock}
+\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{lrrrrr}
+\toprule
+Stock & HAR & Equal & Taylor & Gate LC & Gate\\
+\midrule
+\tabinput{tables/per_stock.tex}
+\bottomrule
+\end{tabular}
+\par\footnotesize Equal: equal weights; Taylor: minimum-score combining; Gate LC: gate with level control; Gate: without level control.
+\end{table}
+
+\begin{table}[t]
+\centering
+\caption{Originally planned hypotheses evaluated on the fresh data (one-sided $p$, no correction)}
+\label{tab:orig}
+\footnotesize
+\begin{tabular}{lrr}
+\toprule
+Hypothesis (lower loss first) & DM & $p$\\
+\midrule
+\tabinput{tables/original_family.tex}
+\bottomrule
+\end{tabular}
+\end{table}
 
 \subsection{Robustness and mechanism}
 The following analyses were not pre-registered. H3 holds at $\alpha=1\%$, 2.5\% and 5\%, and H4 at 2.5\% and 5\% ($p=0.057$ at 1\%). By year, H3 is significant in 2023, 2024 and 2026 with the same sign in 2025; H4 is significant in 2024 and 2026, has the same sign in 2025 and the opposite, non-significant sign in 2023 (Table~\ref{tab:rob}, Fig.~\ref{fig:year}). The level-controlled gate beats the uncontrolled gate for 25 of 27 stocks.
 
 Fig.~\ref{fig:mech} shows the mechanism. Across 108 stock-years, the more the uncontrolled gate shrinks its scale, the larger its loss relative to HAR (correlation $-0.45$; $-0.45$ within years and $-0.51$ within stocks; descriptive, as stock-years are not independent). On average it shrinks VaR by about 6\%, a level learned from the training years. Shrunken forecasts understate tail losses: its ES is rejected by the $Z_2$ test for 9 of 27 stocks, against 3 for the level-controlled gate, and its VaR exceptions cluster, with the dynamic quantile test rejecting for 11 stocks against 2 (Table~\ref{tab:bt}).
 
-A power projection from the observed effect sizes and cross-stock correlation shows the achievable DM statistic for H1, H2 and R2 versus HAR is capped below 1.1 in absolute value however many stocks are added, because the loss differences are correlated across stocks. A larger sample would therefore not separate these methods.
+Fig.~\ref{fig:scale} shows the same mechanism in time. The uncontrolled gate's monthly average scale factor lies between 0.90 and 0.96 in 91\% of test months, that is, it systematically shrinks VaR and ES relative to its own combination of base models. With level control it stays between 0.976 and 1.001. The shrinkage is not a response to the current state: it persists through calm and volatile months alike, which is what a level learned from the training years looks like.
+
+A power projection (Table~\ref{tab:power}) shows why H1 and H2 failed. The loss differentials between HAR, equal weights and Taylor combinations are positively correlated across stocks, so adding stocks stops reducing the variance of the pooled differential. Even with infinitely many stocks the achievable DM statistic would stay below 1.1 in absolute value for H1, H2 and R2 versus HAR. By contrast, H3 and H4 would have been detected with about 8 to 9 stocks. A larger sample would therefore not separate the simple methods; the null results for H1 and H2 reflect genuinely small differences, not a lack of data.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/scale.pdf}
+\caption{Monthly mean scale factor $g$ of the gate with and without level control, fresh universe, $\alpha=2.5\%$. A value below one shrinks VaR and ES.}
+\label{fig:scale}
+\end{figure}
+
+\begin{table}[t]
+\centering
+\caption{Power projection, fresh universe, $\alpha=2.5\%$}
+\label{tab:power}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lrrrr}
+\toprule
+Comparison & $\rho$ & DM ($N=27$) & DM ($N\to\infty$) & $N$ needed\\
+\midrule
+\tabinput{tables/power.tex}
+\bottomrule
+\end{tabular}}
+\par\footnotesize $N$ needed: smallest number of stocks giving a one-sided 5\% test 80\% power at the observed effect; -- means no number suffices.
+\end{table}
 
 \begin{table}[t]
 \centering
@@ -136,7 +298,7 @@ A power projection from the observed effect sizes and cross-stock correlation sh
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}
 & DM & $p$ & DM & $p$\\
 \midrule
-\input{tables/robustness.tex}
+\tabinput{tables/robustness.tex}
 \bottomrule
 \end{tabular}
 \end{table}
@@ -151,7 +313,7 @@ A power projection from the observed effect sizes and cross-stock correlation sh
 \toprule
 Method & Hit rate & Kupiec & DQ & $Z_2$\\
 \midrule
-\input{tables/backtests.tex}
+\tabinput{tables/backtests.tex}
 \bottomrule
 \end{tabular}
 \end{table}
@@ -174,9 +336,27 @@ Method & Hit rate & Kupiec & DQ & $Z_2$\\
 
 The evidence points to one mechanism. A learned gate can adjust both the mix of models and the overall level of risk. The mix is useful but small; the level is where it overfits, because in the training years after the COVID shock the base models tended to over-forecast risk, and the gate learned to shrink them. When conditions changed, the learned shrinkage persisted. This is the tail-risk version of the location-shift failures described by Clements and Hendry \cite{clements1998} and of the estimation-error explanations of the combination puzzle \cite{claeskens2016,elliott2026}. A penalty that keeps the learned level near one removes most of the damage, and a bounded correction of a strong anchor (R2) does no harm, but neither beats a simple combination significantly.
 
-For practitioners the implication is direct: a learned combination of VaR/ES forecasts should not be allowed to rescale risk freely. Level control, or an anchor that is refitted regularly, is a minimum requirement.
+\subsection{Why the simple methods tie}
+HAR, equal weights and Taylor combinations all forecast the level of risk from recent data that is refitted every month, and they differ mainly in how they weight models whose forecasts are highly correlated. Their loss differences are therefore small and move together across stocks, which is exactly what the power projection measures. This agrees with the forecast combination puzzle \cite{stock2004,smith2009,claeskens2016,elliott2026}: when the potential gain from better weights is small, estimation error dominates, and simple rules are hard to beat. It also agrees with Hansen and Lunde's finding for point volatility \cite{hansen2005}, here for joint VaR/ES forecasts.
 
-\textit{Limitations.} The data are daily Yahoo Finance prices for one market; intraday realized measures may change the ranking. The test period is under four years, and India-specific events (the 2024 election, the Vedanta demerger) affect some years. The robustness and mechanism analyses are exploratory. The pre-registration is a public repository tag rather than a registry entry.
+\subsection{Implications for practice}
+\begin{itemize}
+\item A learned combination of VaR/ES forecasts should not be allowed to rescale risk freely. A penalty that keeps the overall scale near one, or a structure that only redistributes weight among refitted models, removes most of the failure.
+\item Single parametric models are dominated, but the choice among HAR, equal weights and Taylor combinations matters little for Indian stocks; simplicity and transparency can decide.
+\item Backtests that look only at hit rates miss the problem: the uncontrolled gate's average hit rate (2.9\%) is close to the nominal 2.5\%, while its DQ and $Z_2$ rejections reveal clustered exceptions and shallow ES.
+\end{itemize}
+
+\subsection{Threats to validity}
+\begin{itemize}
+\item \textbf{Data.} Daily Yahoo Finance prices for one market. Corporate actions were checked only for returns above 10\%; smaller unadjusted actions could remain. Intraday realized measures might change the ranking.
+\item \textbf{Period.} The test period is under four years and includes India-specific events (the 2024 general election, the Adani and Vedanta episodes). The by-year results show the mechanism in three of four years, not all.
+\item \textbf{Pre-registration.} The registration is a public repository tag, not an entry in a registry. The hypothesis family and the asset-selection rule changed from an earlier public draft before the fresh data was downloaded; both changes are disclosed and the earlier family is reported.
+\item \textbf{Exploratory analyses.} The robustness, mechanism, $Z_2$ and power analyses were not pre-registered and are not corrected for multiple testing. The mechanism correlation is descriptive because stock-years are not independent and the scale factor enters the forecast directly.
+\item \textbf{Model space.} We test one family of learned gates. Other architectures, or gates trained on longer histories that include several regimes, may behave differently.
+\end{itemize}
+
+\subsection{Future work}
+Natural extensions are a pre-registered test of level drift in other markets, gates trained with explicit regime information, and anchors built on intraday realized measures. The released pipeline makes such replications straightforward.
 
 \section{Conclusion}
 
