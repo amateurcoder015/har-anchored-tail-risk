@@ -1,0 +1,393 @@
+{
+ "title": "Why Adaptive Combinations of Tail-Risk Forecasts Fail",
+ "theme": "emerald",
+ "options": {
+  "slides": 28,
+  "motion": "calm",
+  "aspect": "16:9",
+  "tone": "academic, for beginners",
+  "density": "text",
+  "clickable_agenda": true
+ },
+ "slides": [
+  {
+   "layout": "title",
+   "kicker": "A research study on Indian stocks",
+   "title": "Why smart risk forecasts fail",
+   "subtitle": "Pre-registered evidence of level drift when learned models combine Value-at-Risk and Expected Shortfall forecasts",
+   "byline": "From first project to final paper",
+   "notes": "Welcome. This talk assumes no finance background. We will build up every idea from scratch: what risk is, how it is measured, how computers forecast it, and what our study found. The short version: a clever machine-learning method for combining risk forecasts fails for one specific, measurable reason, and we proved it with a test we committed to in public before seeing the data."
+  },
+  {
+   "layout": "agenda",
+   "title": "What we will cover",
+   "notes": "Six parts. Parts 1 and 2 give you the vocabulary. Part 3 explains the models. Part 4 is the story of our three projects. Part 5 is the results, and part 6 is what it all means. Each item is clickable if you want to jump."
+  },
+  {
+   "layout": "section",
+   "number": "01",
+   "title": "The basic problem",
+   "subtitle": "What risk is and why anyone forecasts it",
+   "notes": "Let us start from zero: what do banks actually worry about every day?"
+  },
+  {
+   "layout": "detail",
+   "title": "A stock's price moves every day",
+   "intro": "A return is the percentage change in a stock's price from one day to the next. If a share closes at 100 rupees today and 97 tomorrow, the return is about -3%. Returns are what risk is measured on.",
+   "points": [
+    "Most days the move is small: a fraction of a percent up or down.",
+    "Some days are calm, others are wild. How much returns swing is called volatility.",
+    "Volatility comes in clusters: a wild day is usually followed by more wild days.",
+    "That clustering is what makes risk partly predictable from the recent past.",
+    "The rare, very bad days are called the tail. Big losses live there.",
+    "Risk forecasting is about the tail, not the average day."
+   ],
+   "notes": "Key idea: returns are daily percentage changes, volatility is how jumpy they are, and the tail is the rare bad days. Because wild days cluster, yesterday tells us something about tomorrow, which is why forecasting risk is possible at all."
+  },
+  {
+   "layout": "detail",
+   "title": "Two numbers banks forecast every evening",
+   "intro": "Each evening a bank must know how much it could lose tomorrow, so it holds enough capital.",
+   "points": [
+    "Value-at-Risk (VaR): a loss threshold. A 2.5% VaR of -3% means a loss worse than 3% happens on about 1 day in 40.",
+    "Expected Shortfall (ES): the average loss on those worst days. If VaR is -3%, ES might be -4.2%.",
+    "ES always shows a bigger loss than VaR, because it looks inside the bad tail.",
+    "Tail level alpha = how rare 'bad' is. We use 2.5% (1 day in 40), the Basel banking standard.",
+    "Global bank rules (Basel) now set market-risk capital using ES at this 2.5% level.",
+    "Too low a forecast is dangerous; too high wastes money. Accuracy matters both ways."
+   ],
+   "notes": "VaR answers: where does a bad day start? ES answers: how bad is a bad day on average? Regulators moved from VaR to ES because VaR says nothing about how deep the losses go once the line is crossed."
+  },
+  {
+   "layout": "stat",
+   "value": "1",
+   "suffix": " in 40",
+   "label": "trading days is a 'bad day' at our main tail level of 2.5%",
+   "context": "alpha = 2.5%",
+   "note": "Basel FRTB market-risk standard: Expected Shortfall at the 97.5% confidence level.",
+   "notes": "Over a year of about 250 trading days, roughly 6 days should cross a good VaR forecast. If many more cross it, the forecast is too optimistic; if far fewer, it is too cautious."
+  },
+  {
+   "layout": "figure",
+   "title": "How one forecast is made and checked",
+   "image": "img/flow_daily.png",
+   "caption": "This cycle runs every trading day, for every stock, January 2023 to September 2026.",
+   "notes": "Walk through left to right. Tonight we take prices up to today, feed six risk models, combine their answers, and publish tomorrow's VaR and ES. Tomorrow the real return happens, and we score the forecast. The crucial rule: models only ever see data up to the evening before. Using tomorrow's information by accident is called look-ahead bias, and our code tests for it automatically.",
+   "ratio": 2.989
+  },
+  {
+   "layout": "section",
+   "number": "02",
+   "title": "Grading a forecast",
+   "subtitle": "How do you know one forecast is better than another?",
+   "notes": "A forecast is only useful if we can score it fairly. This part explains the scoring and the statistics."
+  },
+  {
+   "layout": "cards",
+   "title": "How forecasts are scored",
+   "cards": [
+    {
+     "title": "FZ0 loss",
+     "text": "One score for a VaR and ES pair together. Lower is better. It punishes forecasts that are too timid and too alarmist."
+    },
+    {
+     "title": "Out-of-sample",
+     "text": "Every score uses days the model never saw while being built. That is the only honest test."
+    },
+    {
+     "title": "Walk-forward",
+     "text": "Retrain each year on the past only, then forecast the next year, exactly as in real life."
+    },
+    {
+     "title": "Backtests",
+     "text": "Count the days losses crossed VaR, check they do not cluster, and check ES was deep enough."
+    }
+   ],
+   "notes": "FZ0 is the key yardstick. Because VaR and ES are judged together by one strictly consistent score, a method cannot game it. Backtests are the regulator's view: Kupiec counts crossings, Christoffersen and the DQ test check clustering, and the Acerbi-Szekely Z2 test checks whether ES was deep enough."
+  },
+  {
+   "layout": "detail",
+   "title": "Is a difference real or just luck?",
+   "intro": "Two methods will never score exactly the same. Statistics tells us whether a gap is real or could easily be chance.",
+   "points": [
+    "Diebold-Mariano (DM) test: compares two methods' daily scores. Here a negative value means the first method is better.",
+    "p-value: how likely a gap this big is if there were no real difference. Below 0.05 counts as significant.",
+    "Holm correction: testing four ideas at once makes lucky passes likelier, so the bar is raised.",
+    "Model Confidence Set: a shortlist of methods that cannot be told apart from the best.",
+    "Statistical power: whether there is enough data to detect a real gap at all.",
+    "Pre-registration: publishing hypotheses before seeing test data, so results cannot be tuned afterwards."
+   ],
+   "notes": "These are the tools that make the results trustworthy. Pre-registration is the most important for credibility: it is common in medicine but rare in finance forecasting."
+  },
+  {
+   "layout": "section",
+   "number": "03",
+   "title": "The forecasting models",
+   "subtitle": "Six basic models and ways to combine them",
+   "notes": "Now the actual methods we compare."
+  },
+  {
+   "layout": "detail",
+   "title": "Six basic risk models",
+   "intro": "Each base model looks at recent prices and outputs tomorrow's VaR and ES. They differ in what they assume about how volatility behaves.",
+   "points": [
+    "EWMA: recent days count more. The RiskMetrics method banks have used for decades.",
+    "GARCH: today's risk depends on yesterday's shock and yesterday's risk level.",
+    "EGARCH and GJR-GARCH: like GARCH, but bad news raises risk more than good news.",
+    "HAR: uses yesterday's, last week's and last month's volatility, measured from each day's high-low range.",
+    "India VIX model: uses the market's own fear index, read from option prices.",
+    "All six are refitted every month on all past data, so they keep learning."
+   ],
+   "notes": "HAR is the star of the story. It uses the high and low of each day, not just the close, which carries more information. In every set of stocks we tested it was the strongest single model."
+  },
+  {
+   "layout": "compare",
+   "title": "Two ways to combine forecasts",
+   "left": {
+    "title": "Simple combinations",
+    "points": [
+     "Equal weights: average all six models",
+     "Median: take the middle forecast",
+     "Taylor (2020): weights based on each model's past score",
+     "Fixed rules, nothing learned about today"
+    ]
+   },
+   "right": {
+    "title": "Learned gate",
+    "points": [
+     "A small neural network reads today's market",
+     "Chooses how much to trust each model",
+     "Can also scale total risk up or down (factor g)",
+     "Promises to adapt to changing conditions"
+    ]
+   },
+   "notes": "Combining is like asking several experts and blending their answers. Simple rules are robust. The learned gate is the 'smart' idea that our first project was built on: let a network decide, day by day, whom to trust and how much risk to report."
+  },
+  {
+   "layout": "figure",
+   "title": "Inside the learned gate",
+   "image": "img/flow_gate.png",
+   "caption": "g below 1 means the gate reports less risk than its own models say.",
+   "notes": "The gate takes the six forecasts and a description of today's market, then outputs weights and a scale factor g. If g equals 1, the final forecast is just a weighted mix. If g is 0.9, the gate shrinks reported risk by 10 percent. Keep an eye on g: it is the villain of this story.",
+   "ratio": 1.947
+  },
+  {
+   "layout": "section",
+   "number": "04",
+   "title": "Our three projects",
+   "subtitle": "From a promising idea to a tested explanation",
+   "notes": "This is how the research evolved."
+  },
+  {
+   "layout": "figure",
+   "title": "Three projects, one question",
+   "image": "img/flow_projects.png",
+   "caption": "Each project fixed the weaknesses of the one before it.",
+   "notes": "Project 1 had a neural blend that lost to plain EWMA, with validation checks that only printed PASS. Project 2 rebuilt it properly, with VaR and ES, a proper score and real tests, and found the gate still lost because its scale factor fell to 0.82. Project 3 asks why, and tests the answer properly.",
+   "ratio": 2.591
+  },
+  {
+   "layout": "compare",
+   "title": "First project vs final project",
+   "left": {
+    "title": "Project 1",
+    "points": [
+     "Forecast volatility only",
+     "4 models frozen after 2021",
+     "8 assets, tested on 2025 only",
+     "No significance tests",
+     "Validation reports printed PASS without checking"
+    ]
+   },
+   "right": {
+    "title": "Project 3",
+    "points": [
+     "Forecasts VaR and ES",
+     "6 models refitted monthly",
+     "20 development + 27 untouched test stocks",
+     "Significance tests and 4 backtests",
+     "Public pre-registration, 137 tests"
+    ]
+   },
+   "notes": "The idea survived; almost everything about how it is tested changed. The final project also changed the question, from 'does the gate win?' to 'why does it lose?'."
+  },
+  {
+   "layout": "bullets",
+   "title": "The idea we tested: level drift",
+   "points": [
+    "The gate learns its scale factor g from its training years.",
+    "After COVID, the base models over-forecast risk, so the gate learned to shrink it.",
+    "Later, conditions changed, but the learned shrinking stayed.",
+    "Result: too little reported risk, and losses cross VaR too often.",
+    "Fix: a penalty that keeps g close to 1, called level control."
+   ],
+   "aside": "Learned level, stale world",
+   "notes": "Level drift is a specific version of a known problem in forecasting: models that learn a fixed adjustment from the past break when the world shifts. Our prediction: a gate with level control should beat the same gate without it, and the uncontrolled gate should lose to HAR."
+  },
+  {
+   "layout": "figure",
+   "title": "How the final study was run",
+   "image": "img/flow_study.png",
+   "caption": "Everything was public on GitHub before the 27 stocks were downloaded.",
+   "notes": "This design is what makes the result credible. We designed everything on 20 stocks we had already seen. Then we wrote down four hypotheses and the test rules, published them, and only then downloaded 27 stocks we had never touched, three per sector: banks like HDFC Bank, IT like TCS, pharma like Cipla, power like NTPC, and so on. We ran it once.",
+   "ratio": 2.458
+  },
+  {
+   "layout": "section",
+   "number": "05",
+   "title": "What we found",
+   "subtitle": "27 never-used stocks, January 2023 to September 2026",
+   "notes": "The results, all from the single pre-registered run."
+  },
+  {
+   "layout": "cards",
+   "title": "The four pre-registered hypotheses",
+   "cards": [
+    {
+     "title": "H1  HAR beats equal weights",
+     "text": "Not supported. A statistical tie (DM -0.53, adjusted p 0.60)."
+    },
+    {
+     "title": "H2  HAR beats Taylor's blend",
+     "text": "Not supported. A tie (DM -0.09, adjusted p 0.60)."
+    },
+    {
+     "title": "H3  HAR beats uncontrolled gate",
+     "text": "Supported. DM -3.47, adjusted p 0.001."
+    },
+    {
+     "title": "H4  Level control beats no control",
+     "text": "Supported. DM -3.19, adjusted p 0.002."
+    }
+   ],
+   "notes": "Two of four confirmed, and they are exactly the two about level drift. The two claiming HAR beats simple blends were ties: the simple methods are statistically indistinguishable. Adjusted p means after the Holm correction for testing four things."
+  },
+  {
+   "layout": "chart",
+   "title": "Extra loss compared with the best method",
+   "type": "bar",
+   "categories": [
+    "R2-MLP (best)",
+    "R2-linear",
+    "HAR",
+    "Taylor min. score",
+    "Taylor rel. score",
+    "Equal weights",
+    "Gate, level control",
+    "R1 (HAR-X)",
+    "Gate, no level control"
+   ],
+   "series": [
+    {
+     "name": "FZ0 loss above best, x1000",
+     "values": [
+      0.0,
+      2.1,
+      3.6,
+      4.5,
+      5.7,
+      9.3,
+      10.2,
+      36.5,
+      38.4
+     ]
+    }
+   ],
+   "number_format": "0.0",
+   "takeaway": "Gaps at the top are tiny",
+   "source": "Pooled over 27 fresh stocks, alpha 2.5%. Our calculation from results/fresh/tables/compare.csv.",
+   "notes": "Shorter bars are better. The top seven methods are within about 10 thousandths of each other, which is why they tie statistically. The uncontrolled gate and R1 are clearly worse: about four times further from the best."
+  },
+  {
+   "layout": "chart",
+   "title": "Backtests: how often each method failed",
+   "type": "column",
+   "categories": [
+    "HAR",
+    "Equal weights",
+    "Taylor min. score",
+    "Gate, level control",
+    "Gate, no level control"
+   ],
+   "series": [
+    {
+     "name": "Exceptions cluster (DQ test)",
+     "values": [
+      3,
+      3,
+      6,
+      2,
+      11
+     ]
+    },
+    {
+     "name": "ES too shallow (Z2 test)",
+     "values": [
+      5,
+      0,
+      4,
+      3,
+      9
+     ]
+    }
+   ],
+   "number_format": "0",
+   "takeaway": "Uncontrolled gate fails most",
+   "source": "Number of the 27 fresh stocks rejected at 5%. results/fresh/tables/backtest_rejections.csv and robustness/as_z2_summary.csv.",
+   "notes": "The uncontrolled gate's hit rate looks almost fine, 2.9% versus the target 2.5%. But its bad days come in clusters for 11 stocks, and its ES underestimates real losses for 9. Counting hits alone would have missed the problem."
+  },
+  {
+   "layout": "figure",
+   "title": "Level drift, month by month",
+   "image": "img/scale.png",
+   "ratio": 1.964,
+   "caption": "Without control: g at 0.90-0.96 in 91% of months. With control: 0.976-1.001.",
+   "notes": "This is level drift made visible. The uncontrolled gate consistently reports 4 to 10 percent less risk than its own models suggest, in calm and volatile months alike. That is not a reaction to the market; it is a habit learned from the training years."
+  },
+  {
+   "layout": "figure",
+   "title": "More shrinking, bigger losses",
+   "image": "img/mechanism.png",
+   "ratio": 1.964,
+   "caption": "One dot per stock-year (108). Correlation -0.45. Descriptive, not pre-registered.",
+   "notes": "Across stocks and years, the more the gate shrank its forecasts, the more it lost to HAR. Level control beat no level control on 25 of 27 stocks. A power analysis also showed H3 and H4 would show up with just 8 to 9 stocks, while the ties in H1 and H2 would never separate however many stocks we added."
+  },
+  {
+   "layout": "section",
+   "number": "06",
+   "title": "What it means",
+   "subtitle": "Claims, limits and next steps",
+   "notes": "Finally, what we can and cannot say."
+  },
+  {
+   "layout": "compare",
+   "title": "What we can and cannot claim",
+   "left": {
+    "title": "We can say",
+    "points": [
+     "Learned blends that freely rescale risk fail, through level drift",
+     "Level control fixes most of that failure",
+     "HAR, equal weights and Taylor's blends tie",
+     "More stocks would not separate the ties",
+     "Single GARCH-type models are worse than all of these"
+    ]
+   },
+   "right": {
+    "title": "We cannot say",
+    "points": [
+     "That our new methods R1 or R2 beat HAR",
+     "That HAR beats simple combinations",
+     "Anything about other markets or intraday data",
+     "That every neural design fails the same way"
+    ]
+   },
+   "notes": "Being clear about limits is part of the contribution. To our knowledge this is the first pre-registered study of combining VaR and ES forecasts, and the level-drift finding is confirmed on stocks we never touched during design."
+  },
+  {
+   "layout": "closing",
+   "title": "Let risk models mix, not rescale",
+   "subtitle": "Code, data and pre-registration: github.com/amateurcoder015/har-anchored-tail-risk",
+   "notes": "The practical lesson for anyone building such models: a learned combination should not be allowed to rescale overall risk freely. Thank you. Everything, including the pre-registration and every result table, is public in the repository."
+  }
+ ]
+}
