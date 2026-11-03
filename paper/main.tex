@@ -14,12 +14,11 @@
 \title{Why Adaptive Combinations of Tail-Risk Forecasts Fail:\\
 Pre-Registered Evidence of Level Drift in Indian Equities}
 
-% Author names and affiliations to be agreed by the authors before submission.
-\author{\IEEEauthorblockN{Author One}
-\IEEEauthorblockA{Affiliation\\ email}
-\and
-\IEEEauthorblockN{Author Two}
-\IEEEauthorblockA{Affiliation\\ email}}
+\author{\IEEEauthorblockN{Bhavya Sanjay Kothari, Rushi Mehul Mehta, Khush Nilesh Shah, Krishang Ankur Parmar,\\
+Chandrashekhar Badgujar, Ramchandra Mangrulkar, Sweedle Machado}
+\IEEEauthorblockA{\textit{Department of Information Technology}\\
+\textit{Dwarkadas J. Sanghvi College of Engineering}\\
+Mumbai, India}}
 
 \maketitle
 
@@ -82,7 +81,7 @@ We use daily open, high, low, close and adjusted close prices from Yahoo Finance
 
 Three features of the Indian data needed explicit handling. First, Yahoo Finance records the one-hour Diwali \emph{Muhurat} sessions, held on exchange holidays, as ordinary trading days; a one-hour return scored as a full day distorts both the loss and the HAR lags, so these sessions are removed before returns are computed. Second, flat rows with zero volume on exchange holidays are removed rather than treated as zero returns. Third, some corporate actions are not adjusted: every daily return above 10\% in absolute value is reviewed against split, bonus and demerger records, and a row is dropped only for an unadjusted action. India VIX is forward-filled for at most one day.
 
-The \emph{development universe} has 20 assets: the NIFTY 50 and NIFTY Bank indices and 18 large stocks. The \emph{fresh universe} has 27 stocks, three per sector, none used in development: private banks (HDFCBANK, KOTAKBANK, AXISBANK), IT services (TCS, WIPRO, HCLTECH), automobiles (M\&M, EICHERMOT, HEROMOTOCO), pharma (CIPLA, LUPIN, AUROPHARMA), metals (JSWSTEEL, VEDL, SAIL), FMCG (BRITANNIA, DABUR, MARICO), power and oil PSUs (NTPC, POWERGRID, BPCL), cement (ULTRACEMCO, GRASIM, AMBUJACEM) and paints and chemicals (ASIANPAINT, UPL, PIDILITIND). After cleaning each asset has a median of 2,890 trading days. Across both universes, 278 zero-volume rows and 372 Muhurat rows were removed, 281 large moves were reviewed, and two rows were dropped as unadjusted corporate actions (Adani Enterprises 2015-06-03; Vedanta 2026-04-30).
+The \emph{development universe} has 20 assets: the NIFTY 50 and NIFTY Bank indices and 18 large stocks. The \emph{fresh universe} has 27 stocks, three per sector, none used in development across private banks, IT services, automobiles, pharma, metals, FMCG, power and oil PSUs, cement, and paints and chemicals (tickers in the repository). After cleaning each asset has a median of 2,890 trading days. Across both universes, 278 zero-volume rows and 372 Muhurat rows were removed, 281 large moves were reviewed, and two rows were dropped as unadjusted corporate actions (Adani Enterprises 2015-06-03; Vedanta 2026-04-30).
 
 \subsection{Base models}
 Six base models each produce a pair $(\mathrm{VaR}_{i,t},\mathrm{ES}_{i,t})$ for day $t$ using information up to $t-1$. EWMA \cite{riskmetrics1996} sets $\sigma^2_t=\lambda\sigma^2_{t-1}+(1-\lambda)r^2_{t-1}$, with tails by filtered historical simulation. GARCH(1,1), EGARCH(1,1) and GJR-GARCH(1,1) \cite{bollerslev1986,nelson1991,glosten1993} use Student-$t$ errors and are fitted by maximum likelihood; VaR and ES follow from the standardized $t$ quantile and tail mean. HAR \cite{corsi2009} is fitted to the Garman--Klass variance $v_t=\tfrac12\log(H_t/L_t)^2-(2\log2-1)\log(C_t/O_t)^2$ \cite{garman1980}:
@@ -130,19 +129,13 @@ Estimation window & expanding, from 2015-01-01\\
 Refit interval (all models) & 21 trading days\\
 EWMA decay $\lambda$ & 0.94\\
 Min.\ history for combination weights & 250 forecasts\\
-Gate hidden layer & 16 ReLU units, dropout 0.1\\
-Asset embedding & 4 dimensions\\
+Gate network & 16 ReLU, dropout 0.1, 4-dim.\ embedding\\
 Scale range $g_t$ & $[e^{-0.5},e^{0.5}]$\\
 Equal-weight shrinkage $\lambda_{eq}$ & $\{0,0.1,1,10\}$, on validation\\
 Level penalty $\lambda_g$ & 10 (fixed)\\
-Optimiser & Adam, rate $10^{-3}$, batch 256\\
-Weight decay & $10^{-4}$\\
-Epochs / early-stopping patience & at most 300 / 20\\
-Seeds averaged & 5\\
+Optimiser & Adam, rate $10^{-3}$, batch 256, decay $10^{-4}$\\
+Epochs / patience / seeds & $\le$300 / 20 / 5\\
 R2 bound / $\lambda_c$ / $\lambda_m$ & 0.25 / 1 / 100\\
-DM Newey--West lags & $\lfloor 4(T/100)^{2/9}\rfloor$\\
-MCS level / bootstrap & 10\% / 2000, stationary\\
-Holm family-wise level & 0.05\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -156,7 +149,7 @@ L(y,v,e)=-\frac{\mathbb 1\{y\le v\}(v-y)}{\alpha e}+\frac{v}{e}+\log(-e)-1,
 \end{equation}
 which is strictly consistent for the pair (VaR, ES) \cite{fissler2016}; lower is better. Every comparison uses the dates on which all methods have forecasts for every stock.
 
-\textit{Forecast comparison.} For methods $A$ and $B$, let $d_t$ be the cross-stock average of $L_{A,t}-L_{B,t}$. The Diebold--Mariano statistic \cite{diebold1995} is $\bar d/\sqrt{\hat\sigma^2_{NW}/T}$, with Newey--West variance, multiplied by the small-sample factor of Harvey, Leybourne and Newbold \cite{harvey1997} and compared with a $t_{T-1}$ distribution. We also report the 10\% Model Confidence Set \cite{hansen2011} (range statistic, stationary bootstrap).
+\textit{Forecast comparison.} For methods $A$ and $B$, let $d_t$ be the cross-stock average of $L_{A,t}-L_{B,t}$. The Diebold--Mariano statistic \cite{diebold1995} is $\bar d/\sqrt{\hat\sigma^2_{NW}/T}$, with Newey--West variance using $\lfloor 4(T/100)^{2/9}\rfloor$ lags, multiplied by the small-sample factor of Harvey, Leybourne and Newbold \cite{harvey1997} and compared with a $t_{T-1}$ distribution. We also report the 10\% Model Confidence Set \cite{hansen2011} (range statistic, 2000 stationary-bootstrap replications).
 
 \textit{Backtests.} With hits $I_t=\mathbb 1\{y_t\le\mathrm{VaR}_t\}$, we use the Kupiec unconditional coverage test \cite{kupiec1995}, the Christoffersen conditional coverage test \cite{christoffersen1998}, and the dynamic quantile (DQ) test \cite{engle2004}, which regresses $I_t-\alpha$ on a constant, four of its lags and $\mathrm{VaR}_t$. For ES we use the Acerbi--Sz\'ekely statistic \cite{acerbi2014}
 \begin{equation}
@@ -207,8 +200,6 @@ Method & 1\% & 2.5\% & 5\% & 1\% & 2.5\% & 5\%\\
 \end{table*}
 
 \textit{Confirmatory results.} Table~\ref{tab:hyp} reports the registered tests. H3 and H4 are supported: the uncontrolled gate is significantly worse than HAR and than the same gate with level control. H1 and H2 are not supported: HAR, equal weights and Taylor's combinations are statistically indistinguishable. Table~\ref{tab:mcs} gives the 10\% Model Confidence Set over the evaluation pipeline's comparison set. The ordering is informative: the methods that survive either do not rescale risk (HAR, equal weights, Taylor combinations, previous best) or rescale it only within a penalty (the level-controlled gate). Every single parametric model is excluded, which shows the value of combining or of a range-based anchor, but the survivors cannot be separated from each other.
-
-Per stock (full table in the repository), among the five main methods, HAR has the lowest loss for 10 of 27 stocks, Taylor minimum-score combining for 8, equal weights for 4, the level-controlled gate for 3 and the uncontrolled gate for 2; the margins are small, consistent with the pooled tie. The uncontrolled gate has the highest loss of the five for 18 of 27 stocks.
 
 The originally planned hypotheses are not supported on the fresh data either: R1 is significantly worse than HAR (DM $3.57$), and neither R2 variant beats HAR, although R2 with a neural correction has the lowest point estimate at 2.5\% and 5\% and beats HAR for 17 of 27 stocks.
 
